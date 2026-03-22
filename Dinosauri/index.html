@@ -1,0 +1,2048 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Svět Dinosaurů</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#f5e6c8">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Dinosauři">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    /* === RESET & BASE === */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg-primary: #f5e6c8;
+      --bg-secondary: #e8d5a3;
+      --bg-card: #fff8e7;
+      --accent-green: #4CAF50;
+      --accent-orange: #FF9800;
+      --accent-red: #F44336;
+      --accent-brown: #795548;
+      --accent-gold: #FFC107;
+      --accent-blue: #03A9F4;
+      --text-dark: #3E2723;
+      --text-body: #4E342E;
+      --text-muted: #8D6E63;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+      color: var(--text-dark);
+      min-height: 100vh;
+      overflow-x: hidden;
+      font-size: 24px;
+      line-height: 2;
+      letter-spacing: 0.3px;
+      word-spacing: 2px;
+    }
+
+    .container {
+      max-width: 620px;
+      margin: 0 auto;
+      padding: 20px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* === SCREENS === */
+    .screen { display: none; flex-direction: column; align-items: center; animation: fadeIn 0.4s ease; flex: 1; }
+    .screen.active { display: flex; }
+
+    /* === BUTTONS === */
+    .btn {
+      display: inline-block;
+      padding: 20px 44px;
+      border: none;
+      border-radius: 20px;
+      font-size: 24px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      font-family: inherit;
+      text-align: center;
+    }
+    .btn:hover { transform: scale(1.05); }
+    .btn:active { transform: scale(0.97); }
+
+    .btn-green {
+      background: linear-gradient(135deg, var(--accent-green), #388E3C);
+      color: white;
+      box-shadow: 0 4px 20px rgba(76, 175, 80, 0.4);
+    }
+    .btn-orange {
+      background: linear-gradient(135deg, var(--accent-orange), #F57C00);
+      color: white;
+      box-shadow: 0 4px 20px rgba(255, 152, 0, 0.3);
+    }
+    .btn-gold {
+      background: linear-gradient(135deg, var(--accent-gold), #FFA000);
+      color: var(--text-dark);
+      box-shadow: 0 4px 20px rgba(255, 193, 7, 0.3);
+    }
+    .btn-back {
+      align-self: flex-start;
+      background: rgba(121, 85, 72, 0.15);
+      color: var(--text-body);
+      padding: 12px 22px;
+      border-radius: 14px;
+      font-size: 18px;
+      border: none;
+      cursor: pointer;
+      font-family: inherit;
+      font-weight: 600;
+      margin-bottom: 20px;
+      transition: background 0.2s;
+    }
+    .btn-back:hover { background: rgba(121, 85, 72, 0.25); }
+
+    /* === HOME SCREEN === */
+    .home-title {
+      font-size: 42px;
+      font-weight: 800;
+      margin-top: 20px;
+      background: linear-gradient(135deg, var(--accent-green), var(--accent-orange));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .home-subtitle {
+      color: var(--text-muted);
+      font-size: 20px;
+      margin-top: 4px;
+      margin-bottom: 20px;
+    }
+
+    /* CSS Dino Character */
+    .dino-character {
+      position: relative;
+      width: 140px;
+      height: 170px;
+      margin: 10px 0 30px;
+      animation: float 3s ease-in-out infinite;
+    }
+    .dino-body-main {
+      width: 80px;
+      height: 70px;
+      background: #4CAF50;
+      border-radius: 40px 40px 30px 30px;
+      margin: 0 auto;
+      position: relative;
+      top: 40px;
+    }
+    .dino-head {
+      width: 60px;
+      height: 55px;
+      background: #4CAF50;
+      border-radius: 50% 50% 40% 40%;
+      position: absolute;
+      top: -20px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 2;
+    }
+    .dino-eyes {
+      position: absolute;
+      top: 14px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 40px;
+      display: flex;
+      justify-content: space-between;
+    }
+    .dino-eye {
+      width: 14px;
+      height: 14px;
+      background: #fff;
+      border-radius: 50%;
+      position: relative;
+    }
+    .dino-eye::after {
+      content: '';
+      position: absolute;
+      width: 7px;
+      height: 7px;
+      background: #3E2723;
+      border-radius: 50%;
+      top: 3px;
+      left: 4px;
+    }
+    .dino-mouth {
+      position: absolute;
+      bottom: 8px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 24px;
+      height: 10px;
+      border-bottom: 3px solid #388E3C;
+      border-radius: 0 0 50% 50%;
+    }
+    .dino-spikes {
+      position: absolute;
+      top: -8px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 3px;
+    }
+    .dino-spike {
+      width: 0;
+      height: 0;
+      border-left: 5px solid transparent;
+      border-right: 5px solid transparent;
+      border-bottom: 12px solid #FF9800;
+    }
+    .dino-tail {
+      position: absolute;
+      right: -25px;
+      top: 55px;
+      width: 35px;
+      height: 16px;
+      background: #4CAF50;
+      border-radius: 0 12px 12px 0;
+      animation: tailWag 1.5s ease-in-out infinite;
+      transform-origin: left center;
+    }
+    .dino-legs {
+      position: absolute;
+      bottom: -18px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 50px;
+      display: flex;
+      justify-content: space-between;
+    }
+    .dino-leg {
+      width: 16px;
+      height: 20px;
+      background: #4CAF50;
+      border-radius: 0 0 8px 8px;
+    }
+    .dino-arms {
+      position: absolute;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 90px;
+      display: flex;
+      justify-content: space-between;
+    }
+    .dino-arm {
+      width: 14px;
+      height: 10px;
+      background: #4CAF50;
+      border-radius: 6px;
+    }
+    .dino-arm.left { transform: rotate(-25deg); }
+    .dino-arm.right { transform: rotate(25deg); }
+
+    .home-welcome-btn {
+      background: rgba(121, 85, 72, 0.12);
+      border: 2px solid rgba(121, 85, 72, 0.2);
+      color: var(--text-body);
+      padding: 10px 20px;
+      border-radius: 30px;
+      font-size: 18px;
+      font-family: inherit;
+      cursor: pointer;
+      margin-bottom: 20px;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .home-welcome-btn:hover { background: rgba(121, 85, 72, 0.2); }
+
+    .home-buttons { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; }
+
+    /* === LANGUAGE SWITCHER === */
+    .lang-switcher {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+    .lang-btn {
+      background: rgba(121, 85, 72, 0.06);
+      border: 2px solid rgba(121, 85, 72, 0.1);
+      color: var(--text-body);
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 15px;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .lang-btn:hover {
+      background: rgba(121, 85, 72, 0.12);
+    }
+    .lang-btn.active {
+      background: rgba(76, 175, 80, 0.15);
+      border-color: var(--accent-green);
+      color: #2E7D32;
+      font-weight: 700;
+    }
+
+    /* === TOPICS SCREEN === */
+    .topics-title {
+      font-size: 32px;
+      font-weight: 800;
+      margin-bottom: 24px;
+      text-align: center;
+    }
+    .topics-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+      width: 100%;
+    }
+    .topic-card {
+      background: var(--bg-card);
+      border-radius: 20px;
+      padding: 24px 16px;
+      text-align: center;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      border: 3px solid transparent;
+    }
+    .topic-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+    }
+    .topic-card .emoji { font-size: 56px; display: block; margin-bottom: 10px; }
+    .topic-card .title { font-size: 18px; font-weight: 700; color: var(--text-dark); }
+    .topic-card .vo-topic-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      border: 2px solid rgba(121, 85, 72, 0.2);
+      background: rgba(121, 85, 72, 0.08);
+      cursor: pointer;
+      font-size: 16px;
+      margin-top: 8px;
+      transition: all 0.2s;
+    }
+    .topic-card .vo-topic-btn:hover { background: rgba(121, 85, 72, 0.18); }
+
+    .topic-card:nth-child(1) { border-color: #4CAF50; }
+    .topic-card:nth-child(2) { border-color: #F44336; }
+    .topic-card:nth-child(3) { border-color: #8BC34A; }
+    .topic-card:nth-child(4) { border-color: #FF9800; }
+    .topic-card:nth-child(5) { border-color: #03A9F4; }
+    .topic-card:nth-child(6) { border-color: #9C27B0; }
+    .topic-card:nth-child(7) { border-color: #FF5722; }
+    .topic-card:nth-child(8) { border-color: #FFC107; }
+
+    /* === LESSON SCREEN === */
+    .lesson-title {
+      font-size: 28px;
+      font-weight: 800;
+      margin-bottom: 8px;
+      text-align: center;
+    }
+    .lesson-emoji {
+      font-size: 56px;
+      margin-bottom: 12px;
+    }
+    .lesson-content {
+      background: rgba(121, 85, 72, 0.06);
+      border-radius: 20px;
+      padding: 28px;
+      width: 100%;
+      margin-bottom: 20px;
+    }
+    .lesson-content p {
+      margin-bottom: 16px;
+      color: var(--text-body);
+      font-size: 24px;
+      line-height: 2;
+    }
+    .lesson-content p:last-child { margin-bottom: 0; }
+
+    .lesson-para-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    .lesson-para-row p {
+      flex: 1;
+      margin-bottom: 0 !important;
+    }
+    .vo-para-btn {
+      flex-shrink: 0;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      border: 2px solid rgba(121, 85, 72, 0.2);
+      background: rgba(121, 85, 72, 0.08);
+      cursor: pointer;
+      font-size: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+      margin-top: 8px;
+    }
+    .vo-para-btn:hover { background: rgba(121, 85, 72, 0.18); }
+    .vo-para-btn.playing {
+      background: rgba(76, 175, 80, 0.2);
+      border-color: var(--accent-green);
+      animation: pulse 1s ease-in-out infinite;
+    }
+
+    .lesson-divider {
+      text-align: center;
+      color: var(--accent-orange);
+      font-size: 14px;
+      margin: 12px 0;
+      opacity: 0.5;
+    }
+    .lesson-illustration {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      margin: 16px 0;
+    }
+    .lesson-illustration svg {
+      max-width: 480px;
+      width: 100%;
+      height: auto;
+      filter: drop-shadow(0 4px 12px rgba(0,0,0,0.1));
+    }
+
+    /* Play All Button */
+    .play-all-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: linear-gradient(135deg, var(--accent-green), #388E3C);
+      color: white;
+      padding: 12px 24px;
+      border-radius: 30px;
+      font-size: 18px;
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+      border: none;
+      margin-bottom: 16px;
+      transition: all 0.2s;
+    }
+    .play-all-btn:hover { transform: scale(1.05); }
+    .play-all-btn.playing {
+      background: linear-gradient(135deg, #F44336, #D32F2F);
+    }
+
+    /* Exercise cards */
+    .exercise-card {
+      background: var(--bg-card);
+      border-radius: 20px;
+      padding: 24px;
+      margin-bottom: 20px;
+      width: 100%;
+      border: 2px solid rgba(121, 85, 72, 0.1);
+      animation: fadeIn 0.4s ease;
+    }
+    .exercise-header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+    .exercise-anim {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 36px;
+      flex-shrink: 0;
+    }
+    .exercise-title {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--text-dark);
+    }
+    .exercise-difficulty {
+      font-size: 13px;
+      margin-top: 4px;
+      opacity: 0.7;
+    }
+    .exercise-body p {
+      color: var(--text-body);
+      font-size: 20px;
+      line-height: 1.9;
+      margin-bottom: 10px;
+    }
+    .exercise-steps {
+      list-style: none;
+      padding: 0;
+      margin: 12px 0 0 0;
+    }
+    .exercise-steps li {
+      color: var(--text-body);
+      font-size: 19px;
+      line-height: 1.8;
+      padding: 6px 0 6px 32px;
+      position: relative;
+    }
+    .exercise-steps li::before {
+      content: attr(data-step);
+      position: absolute;
+      left: 0;
+      top: 6px;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: rgba(121, 85, 72, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--accent-orange);
+    }
+
+    /* Exercise animations */
+    @keyframes jawOpen {
+      0%, 100% { transform: scaleY(1); }
+      50% { transform: scaleY(1.3); }
+    }
+    @keyframes bounceStep {
+      0%, 100% { transform: translateY(0); }
+      25% { transform: translateY(-8px); }
+      75% { transform: translateY(-8px); }
+    }
+    @keyframes wingFlap {
+      0%, 100% { transform: rotate(0deg); }
+      25% { transform: rotate(-15deg); }
+      75% { transform: rotate(15deg); }
+    }
+    @keyframes curlUp {
+      0%, 100% { transform: scale(1); border-radius: 50%; }
+      50% { transform: scale(0.85); border-radius: 50%; }
+    }
+    @keyframes wobble {
+      0%, 100% { transform: rotate(0deg); }
+      25% { transform: rotate(-10deg); }
+      75% { transform: rotate(10deg); }
+    }
+    @keyframes danceBounce {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      25% { transform: translateY(-6px) rotate(-5deg); }
+      50% { transform: translateY(0) rotate(0deg); }
+      75% { transform: translateY(-6px) rotate(5deg); }
+    }
+
+    .anim-jaw { animation: jawOpen 2s ease-in-out infinite; }
+    .anim-stomp { animation: bounceStep 1.5s ease-in-out infinite; }
+    .anim-wing { animation: wingFlap 2s ease-in-out infinite; }
+    .anim-curl { animation: curlUp 3s ease-in-out infinite; }
+    .anim-wobble { animation: wobble 2s ease-in-out infinite; }
+    .anim-dance { animation: danceBounce 1.5s ease-in-out infinite; }
+
+    /* Voiceover play button */
+    .voiceover-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(121, 85, 72, 0.08);
+      border: 2px solid rgba(121, 85, 72, 0.15);
+      color: var(--text-body);
+      padding: 10px 18px;
+      border-radius: 40px;
+      font-size: 17px;
+      font-family: inherit;
+      cursor: pointer;
+      margin-top: 14px;
+      transition: all 0.2s;
+    }
+    .voiceover-btn:hover {
+      background: rgba(121, 85, 72, 0.14);
+      border-color: rgba(121, 85, 72, 0.25);
+    }
+    .voiceover-btn.playing {
+      background: rgba(76, 175, 80, 0.2);
+      border-color: rgba(76, 175, 80, 0.5);
+      color: #388E3C;
+    }
+    .voiceover-btn .vo-icon {
+      font-size: 20px;
+      transition: transform 0.2s;
+    }
+    .voiceover-btn.playing .vo-icon {
+      animation: pulse 1s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.2); }
+    }
+    /* Voiceover progress bar */
+    .vo-progress {
+      width: 100%;
+      height: 4px;
+      background: rgba(121, 85, 72, 0.08);
+      border-radius: 2px;
+      margin-top: 8px;
+      overflow: hidden;
+      display: none;
+    }
+    .vo-progress.active { display: block; }
+    .vo-progress-fill {
+      height: 100%;
+      background: var(--accent-green);
+      border-radius: 2px;
+      width: 0%;
+      transition: width 0.3s linear;
+    }
+
+    .lesson-fun-fact {
+      background: rgba(255, 193, 7, 0.12);
+      border-left: 4px solid var(--accent-gold);
+      padding: 16px 20px;
+      border-radius: 0 12px 12px 0;
+      margin-top: 16px;
+      width: 100%;
+    }
+    .lesson-fun-fact .label-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .lesson-fun-fact .label {
+      font-weight: 700;
+      color: var(--accent-orange);
+      font-size: 14px;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+    .lesson-fun-fact .vo-fact-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: 2px solid rgba(255, 152, 0, 0.3);
+      background: rgba(255, 152, 0, 0.1);
+      cursor: pointer;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+      margin-bottom: 4px;
+    }
+    .lesson-fun-fact .vo-fact-btn:hover { background: rgba(255, 152, 0, 0.2); }
+    .lesson-fun-fact .vo-fact-btn.playing {
+      background: rgba(76, 175, 80, 0.2);
+      border-color: var(--accent-green);
+      animation: pulse 1s ease-in-out infinite;
+    }
+    .lesson-fun-fact p {
+      color: var(--text-body);
+      margin: 0;
+    }
+
+    /* === QUIZ SCREEN === */
+    .quiz-header {
+      width: 100%;
+      margin-bottom: 24px;
+    }
+    .quiz-progress-label {
+      font-size: 16px;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+      text-align: center;
+    }
+    .quiz-progress-bar {
+      width: 100%;
+      height: 10px;
+      background: rgba(121, 85, 72, 0.1);
+      border-radius: 5px;
+      overflow: hidden;
+    }
+    .quiz-progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent-green), var(--accent-orange));
+      border-radius: 5px;
+      transition: width 0.5s ease;
+    }
+    .quiz-question-area {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 20px 0 30px;
+    }
+    .quiz-question {
+      font-size: 26px;
+      font-weight: 700;
+      text-align: center;
+      flex: 1;
+      min-height: 80px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .quiz-vo-btn {
+      flex-shrink: 0;
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      border: 2px solid rgba(121, 85, 72, 0.2);
+      background: rgba(121, 85, 72, 0.08);
+      cursor: pointer;
+      font-size: 22px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+    .quiz-vo-btn:hover { background: rgba(121, 85, 72, 0.18); }
+    .quiz-vo-btn.playing {
+      background: rgba(76, 175, 80, 0.2);
+      border-color: var(--accent-green);
+      animation: pulse 1s ease-in-out infinite;
+    }
+    .quiz-options {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .quiz-option {
+      width: 100%;
+      padding: 24px 28px;
+      background: var(--bg-card);
+      border: 2px solid rgba(121, 85, 72, 0.1);
+      border-radius: 16px;
+      color: var(--text-dark);
+      font-size: 22px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: inherit;
+      text-align: left;
+    }
+    .quiz-option:hover {
+      border-color: rgba(121, 85, 72, 0.3);
+      background: rgba(255, 248, 231, 0.8);
+    }
+    .quiz-option.correct {
+      background: rgba(76, 175, 80, 0.2);
+      border-color: var(--accent-green);
+      animation: pulse 0.5s;
+    }
+    .quiz-option.wrong {
+      background: rgba(244, 67, 54, 0.15);
+      border-color: var(--accent-red);
+      animation: shake 0.5s;
+    }
+    .quiz-option.reveal-correct {
+      background: rgba(76, 175, 80, 0.15);
+      border-color: var(--accent-green);
+    }
+    .quiz-option:disabled { cursor: default; }
+
+    .quiz-feedback {
+      margin-top: 20px;
+      padding: 16px 24px;
+      border-radius: 16px;
+      font-size: 20px;
+      font-weight: 700;
+      text-align: center;
+      animation: fadeIn 0.3s;
+      min-height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .quiz-feedback.correct {
+      background: rgba(76, 175, 80, 0.15);
+      color: #2E7D32;
+    }
+    .quiz-feedback.wrong {
+      background: rgba(244, 67, 54, 0.1);
+      color: #C62828;
+    }
+    .quiz-next-btn {
+      margin-top: 20px;
+      animation: fadeIn 0.3s;
+    }
+
+    /* === RESULTS SCREEN === */
+    .results-title {
+      font-size: 32px;
+      font-weight: 800;
+      margin-top: 40px;
+      margin-bottom: 10px;
+    }
+    .results-stars {
+      display: flex;
+      gap: 16px;
+      margin: 30px 0;
+    }
+    .result-star {
+      font-size: 56px;
+      opacity: 0.2;
+      transform: scale(0.5);
+      transition: all 0.5s ease;
+    }
+    .result-star.earned {
+      opacity: 1;
+      transform: scale(1);
+      animation: starIn 0.6s ease;
+    }
+    .result-star:nth-child(2).earned { animation-delay: 0.2s; }
+    .result-star:nth-child(3).earned { animation-delay: 0.4s; }
+
+    .results-message {
+      font-size: 20px;
+      color: var(--text-body);
+      text-align: center;
+      margin-bottom: 16px;
+      max-width: 400px;
+    }
+    .results-score {
+      font-size: 16px;
+      color: var(--text-muted);
+      margin-bottom: 30px;
+    }
+    .results-buttons { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; }
+
+    /* background decoration */
+    .bg-deco {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      pointer-events: none;
+      z-index: -1;
+      overflow: hidden;
+    }
+    .bg-leaf {
+      position: absolute;
+      width: 12px;
+      height: 8px;
+      background: rgba(76, 175, 80, 0.15);
+      border-radius: 50% 0 50% 0;
+      animation: leafFall linear infinite;
+    }
+    .bg-footprint {
+      position: absolute;
+      font-size: 14px;
+      opacity: 0.08;
+      transform: rotate(var(--rot));
+    }
+
+    /* === ANIMATIONS === */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(16px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-12px); }
+    }
+    @keyframes tailWag {
+      0%, 100% { transform: rotate(0deg); }
+      25% { transform: rotate(10deg); }
+      75% { transform: rotate(-10deg); }
+    }
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20% { transform: translateX(-8px); }
+      40% { transform: translateX(8px); }
+      60% { transform: translateX(-6px); }
+      80% { transform: translateX(6px); }
+    }
+    @keyframes starIn {
+      0% { transform: scale(0) rotate(-180deg); opacity: 0; }
+      60% { transform: scale(1.3) rotate(10deg); opacity: 1; }
+      100% { transform: scale(1) rotate(0deg); opacity: 1; }
+    }
+    @keyframes leafFall {
+      0% { transform: translateY(-20px) rotate(0deg); opacity: 0; }
+      10% { opacity: 1; }
+      90% { opacity: 1; }
+      100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
+    }
+
+    /* === RESPONSIVE === */
+    @media (max-width: 480px) {
+      .home-title { font-size: 32px; }
+      .topics-title { font-size: 26px; }
+      .quiz-question { font-size: 22px; }
+      .btn { padding: 16px 32px; font-size: 20px; }
+      .topic-card { padding: 18px 12px; }
+      .topic-card .emoji { font-size: 42px; }
+      .lesson-content { padding: 20px; }
+      .lesson-content p { font-size: 20px; }
+    }
+    @media (min-width: 500px) {
+      .topics-grid { grid-template-columns: repeat(3, 1fr); }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Background decoration -->
+  <div class="bg-deco" id="bgDeco"></div>
+
+  <div class="container">
+
+    <!-- SCREEN: HOME -->
+    <div id="screen-home" class="screen active">
+      <div class="lang-switcher" id="langSwitcher">
+        <button class="lang-btn active" onclick="setLang('cs')">🇨🇿 Čeština</button>
+        <button class="lang-btn" onclick="setLang('pt')">🇵🇹 Português</button>
+        <button class="lang-btn" onclick="setLang('es')">🇪🇸 Español</button>
+      </div>
+      <h1 class="home-title" id="homeTitle">Svět Dinosaurů</h1>
+      <p class="home-subtitle" id="homeSubtitle">Pojď objevovat pravěký svět!</p>
+
+      <div class="dino-character">
+        <div class="dino-body-main">
+          <div class="dino-head">
+            <div class="dino-spikes">
+              <div class="dino-spike"></div>
+              <div class="dino-spike"></div>
+              <div class="dino-spike"></div>
+            </div>
+            <div class="dino-eyes">
+              <div class="dino-eye"></div>
+              <div class="dino-eye"></div>
+            </div>
+            <div class="dino-mouth"></div>
+          </div>
+          <div class="dino-arms">
+            <div class="dino-arm left"></div>
+            <div class="dino-arm right"></div>
+          </div>
+          <div class="dino-tail"></div>
+          <div class="dino-legs">
+            <div class="dino-leg"></div>
+            <div class="dino-leg"></div>
+          </div>
+        </div>
+      </div>
+
+      <button class="home-welcome-btn" id="btnWelcome" onclick="Voiceover.playWelcome()">🔊 Přehraj uvítání</button>
+
+      <div class="home-buttons">
+        <button class="btn btn-green" id="btnLearn" onclick="SFX.click(); showScreen('screen-topics')">Chci objevovat!</button>
+        <button class="btn btn-orange" id="btnQuiz" onclick="SFX.click(); startQuiz()">Dinosauří kvíz</button>
+      </div>
+    </div>
+
+    <!-- SCREEN: TOPICS -->
+    <div id="screen-topics" class="screen">
+      <button class="btn-back" id="btnBackTopics" onclick="SFX.click(); showScreen('screen-home')">&#x2190; Zpět</button>
+      <h2 class="topics-title" id="topicsTitle">Dinosauří škola</h2>
+      <div class="topics-grid" id="topicsGrid"></div>
+    </div>
+
+    <!-- SCREEN: LESSON -->
+    <div id="screen-lesson" class="screen">
+      <button class="btn-back" id="btnBackLesson" onclick="SFX.click(); Voiceover.stop(); showScreen('screen-topics')">&#x2190; Zpět</button>
+      <span class="lesson-emoji" id="lessonEmoji"></span>
+      <h2 class="lesson-title" id="lessonTitle"></h2>
+      <button class="play-all-btn" id="playAllBtn" onclick="togglePlayAll()">🔊 Přečti mi to celé</button>
+      <div class="lesson-content" id="lessonContent"></div>
+      <div class="lesson-fun-fact" id="lessonFunFact">
+        <div class="label-row">
+          <div class="label" id="funFactLabel">Věděl(a) jsi?</div>
+          <button class="vo-fact-btn" id="voFactBtn" onclick="playFunFactVO()">🔊</button>
+        </div>
+        <p id="funFactText"></p>
+      </div>
+    </div>
+
+    <!-- SCREEN: QUIZ -->
+    <div id="screen-quiz" class="screen">
+      <button class="btn-back" id="btnBackQuiz" onclick="SFX.click(); Voiceover.stop(); showScreen('screen-home')">&#x2190; Domů</button>
+      <div class="quiz-header">
+        <div class="quiz-progress-label" id="quizProgressLabel"></div>
+        <div class="quiz-progress-bar">
+          <div class="quiz-progress-fill" id="quizProgressFill"></div>
+        </div>
+      </div>
+      <div class="quiz-question-area">
+        <div class="quiz-question" id="quizQuestion"></div>
+        <button class="quiz-vo-btn" id="quizVoBtn" onclick="playQuizVO()">🔊</button>
+      </div>
+      <div class="quiz-options" id="quizOptions"></div>
+      <div class="quiz-feedback" id="quizFeedback" style="display:none"></div>
+      <button class="btn btn-gold quiz-next-btn" id="quizNextBtn" style="display:none" onclick="SFX.click(); advanceQuestion()">Další otázka →</button>
+    </div>
+
+    <!-- SCREEN: RESULTS -->
+    <div id="screen-results" class="screen">
+      <h2 class="results-title" id="resultsTitle"></h2>
+      <div class="results-stars" id="resultsStars">
+        <span class="result-star">&#x2B50;</span>
+        <span class="result-star">&#x2B50;</span>
+        <span class="result-star">&#x2B50;</span>
+      </div>
+      <p class="results-message" id="resultsMessage"></p>
+      <p class="results-score" id="resultsScore"></p>
+      <div class="results-buttons">
+        <button class="btn btn-gold" id="btnRetry" onclick="SFX.click(); startQuiz()">Zkusit znovu</button>
+        <button class="btn btn-green" id="btnResultsHome" onclick="SFX.click(); showScreen('screen-home')">Domů</button>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    // === SOUND ENGINE (Web Audio API) ===
+    const SFX = (() => {
+      let ctx;
+      function getCtx() {
+        if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)();
+        return ctx;
+      }
+      function resumeCtx() {
+        if (ctx && ctx.state === 'suspended') ctx.resume();
+      }
+      function playTones(tones, type = 'sine') {
+        const c = getCtx();
+        const master = c.createGain();
+        master.gain.value = 0.18;
+        master.connect(c.destination);
+        let t = c.currentTime;
+        tones.forEach(([freq, dur]) => {
+          const osc = c.createOscillator();
+          const env = c.createGain();
+          osc.type = type;
+          osc.frequency.value = freq;
+          env.gain.setValueAtTime(0.5, t);
+          env.gain.exponentialRampToValueAtTime(0.01, t + dur);
+          osc.connect(env);
+          env.connect(master);
+          osc.start(t);
+          osc.stop(t + dur);
+          t += dur * 0.7;
+        });
+      }
+      function playNoise(duration, filterFreq, filterType) {
+        const c = getCtx();
+        const bufferSize = c.sampleRate * duration;
+        const buffer = c.createBuffer(1, bufferSize, c.sampleRate);
+        const data = buffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
+        const source = c.createBufferSource();
+        source.buffer = buffer;
+        const filter = c.createBiquadFilter();
+        filter.type = filterType || 'lowpass';
+        filter.frequency.value = filterFreq || 800;
+        const gain = c.createGain();
+        gain.gain.setValueAtTime(0.15, c.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, c.currentTime + duration);
+        source.connect(filter);
+        filter.connect(gain);
+        gain.connect(c.destination);
+        source.start();
+        source.stop(c.currentTime + duration);
+      }
+      return {
+        click() { resumeCtx(); playTones([[880, 0.06], [1100, 0.05]], 'sine'); },
+        swoosh() {
+          resumeCtx();
+          const c = getCtx();
+          const osc = c.createOscillator();
+          const gain = c.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(200, c.currentTime);
+          osc.frequency.exponentialRampToValueAtTime(600, c.currentTime + 0.15);
+          gain.gain.setValueAtTime(0.12, c.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, c.currentTime + 0.2);
+          osc.connect(gain); gain.connect(c.destination);
+          osc.start(); osc.stop(c.currentTime + 0.2);
+        },
+        correct() { resumeCtx(); playTones([[523, 0.12], [659, 0.12], [784, 0.12], [1047, 0.2]], 'sine'); },
+        wrong() { resumeCtx(); playTones([[330, 0.2], [220, 0.3]], 'square'); },
+        fanfare() { resumeCtx(); playTones([[523, 0.15], [659, 0.15], [784, 0.15], [1047, 0.12], [784, 0.1], [1047, 0.35]], 'sine'); },
+        star() { resumeCtx(); playTones([[1200, 0.08], [1500, 0.08], [1800, 0.15]], 'sine'); },
+        roar() {
+          resumeCtx();
+          const c = getCtx();
+          const osc = c.createOscillator(); const osc2 = c.createOscillator();
+          const gain = c.createGain();
+          osc.type = 'sawtooth'; osc.frequency.setValueAtTime(120, c.currentTime);
+          osc.frequency.exponentialRampToValueAtTime(80, c.currentTime + 0.8);
+          osc2.type = 'square'; osc2.frequency.setValueAtTime(90, c.currentTime);
+          osc2.frequency.exponentialRampToValueAtTime(60, c.currentTime + 0.8);
+          gain.gain.setValueAtTime(0.15, c.currentTime);
+          gain.gain.setValueAtTime(0.2, c.currentTime + 0.1);
+          gain.gain.exponentialRampToValueAtTime(0.001, c.currentTime + 0.9);
+          osc.connect(gain); osc2.connect(gain); gain.connect(c.destination);
+          osc.start(); osc2.start(); osc.stop(c.currentTime + 0.9); osc2.stop(c.currentTime + 0.9);
+          playNoise(0.5, 400, 'lowpass');
+        },
+        stomp() {
+          resumeCtx();
+          const c = getCtx(); const osc = c.createOscillator(); const gain = c.createGain();
+          osc.type = 'sine'; osc.frequency.setValueAtTime(60, c.currentTime);
+          osc.frequency.exponentialRampToValueAtTime(30, c.currentTime + 0.3);
+          gain.gain.setValueAtTime(0.25, c.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, c.currentTime + 0.35);
+          osc.connect(gain); gain.connect(c.destination);
+          osc.start(); osc.stop(c.currentTime + 0.35);
+          playNoise(0.15, 200, 'lowpass');
+        },
+        splash() { resumeCtx(); playNoise(0.6, 2000, 'bandpass'); },
+        crash() {
+          resumeCtx();
+          const c = getCtx(); const osc = c.createOscillator(); const gain = c.createGain();
+          osc.type = 'sawtooth'; osc.frequency.setValueAtTime(200, c.currentTime);
+          osc.frequency.exponentialRampToValueAtTime(30, c.currentTime + 1.2);
+          gain.gain.setValueAtTime(0.2, c.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, c.currentTime + 1.5);
+          osc.connect(gain); gain.connect(c.destination);
+          osc.start(); osc.stop(c.currentTime + 1.5);
+          playNoise(1.0, 600, 'lowpass');
+        },
+        hatch() { resumeCtx(); playTones([[1200, 0.04], [1400, 0.04], [1100, 0.04], [1500, 0.04], [1300, 0.05]], 'sine'); },
+        flap() { resumeCtx(); playNoise(0.3, 1200, 'bandpass'); setTimeout(() => playNoise(0.3, 1000, 'bandpass'), 200); },
+        topicEnter() { resumeCtx(); playTones([[440, 0.1], [554, 0.1], [659, 0.1], [880, 0.18]], 'sine'); }
+      };
+    })();
+
+    document.addEventListener('click', () => { if (typeof SFX !== 'undefined') SFX.click; }, { once: true });
+
+    const topicSounds = [
+      () => SFX.topicEnter(), () => SFX.roar(), () => SFX.stomp(),
+      () => SFX.stomp(), () => SFX.flap(), () => SFX.hatch(), () => SFX.crash()
+    ];
+
+    // === I18N SYSTEM ===
+    let currentLang = 'cs';
+
+    const i18n = {
+      cs: {
+        homeTitle: 'Svět Dinosaurů',
+        homeSubtitle: 'Pojď objevovat pravěký svět!',
+        btnLearn: 'Chci objevovat!',
+        btnQuiz: 'Dinosauří kvíz',
+        btnWelcome: '🔊 Přehraj uvítání',
+        backBtn: '← Zpět',
+        homeBtn: '← Domů',
+        topicsTitle: 'Dinosauří škola',
+        funFactLabel: 'Věděl(a) jsi?',
+        playAll: '🔊 Přečti mi to celé',
+        stopAll: '⏹ Zastavit',
+        listen: 'Poslechnout',
+        stop: 'Zastavit',
+        nextQuestion: 'Další otázka →',
+        btnRetry: 'Zkusit znovu',
+        btnHome: 'Domů',
+        questionOf: (n, t) => `Otázka ${n} z ${t}`,
+        scoreOf: (s, t) => `Správně ${s} z ${t}`,
+        correctMessages: [
+          'Správně! Jsi dinosauří expert!', 'Výborně! To sedí!',
+          'Přesně tak! Ty toho víš hodně!', 'Super! Máš to v malíčku!',
+          'Ano! Jsi chytrý jako velociraptor!'
+        ],
+        resultTitles: { 1: 'Dinosauří žáček', 2: 'Dinosauří znalec', 3: 'Dinosauří mistr!' },
+        resultMessages: {
+          1: 'Dobrý začátek! Poslechni si lekce a zkus to znovu — příště to bude ještě lepší!',
+          2: 'Skvělá práce! Víš toho o dinosaurech už hodně. Ještě trochu a budeš mistr!',
+          3: 'Úžasné! Znáš dinosaury jako opravdový paleontolog!'
+        },
+        activitiesTitle: 'Dinosauří aktivity',
+        lessons: [
+          {
+            title: 'Co jsou dinosauři?',
+            paragraphs: [
+              'Dinosauři byli obrovská zvířata. Žili dávno dávno, když ještě nebyli žádní lidé.',
+              'Někteří byli velcí jako dům! Jiní byli maličcí, jako slepička.',
+              'Dinosauři žili na celé Zemi. Byli všude — v lesích, u řek i na horách.'
+            ],
+            funFact: 'Slovo dinosaurus znamená „hrozný ještěr". Ale někteří byli hodně hodně hodní!'
+          },
+          {
+            title: 'Velcí masožravci',
+            paragraphs: [
+              'Tyrannosaurus Rex byl král dinosaurů! Měl obrovskou tlamu plnou ostrých zubů.',
+              'Masožravci jedli maso, protože to bylo plné energie. Museli být rychlí a silní.',
+              'Spinosaurus měl na zádech obrovskou plachtu. Byl ještě větší než T-Rex!'
+            ],
+            funFact: 'T-Rex měl zuby velké jako banán! Ale jeho ručičky byly úplně maličké.'
+          },
+          {
+            title: 'Hodní býložravci',
+            paragraphs: [
+              'Brachiosaurus měl dlouhatánský krk. Dosáhl i na nejvyšší stromy!',
+              'Býložravci jedli rostliny, listy a kapradiny. Jedli celý den, protože rostliny nemají tolik energie.',
+              'Diplodocus měl ocas dlouhý jako autobus! Práskem s ním odháněl nebezpečné masožravce.'
+            ],
+            funFact: 'Brachiosaurus snědl každý den tolik rostlin, jako kdybys snědl 400 talířů salátu!'
+          },
+          {
+            title: 'Brnění a rohy',
+            paragraphs: [
+              'Triceratops měl tři velké rohy a obrovský štít na hlavě. Chránil se tak před masožravci!',
+              'Ankylosaurus měl celou krunýř jako želvička. A na konci ocasu měl těžký palcát!',
+              'Stegosaurus měl na zádech velké kostěné desky. A na ocasu měl ostny — to bolelo!'
+            ],
+            funFact: 'Štít Triceratopse byl široký jako vana! Žádný masožravec se mu nechtěl postavit.'
+          },
+          {
+            title: 'Létající a vodní',
+            paragraphs: [
+              'Pteranodon létal po obloze jako obrovské letadlo! Měl křídla široká jako auto.',
+              'Pteranodon vlastně nebyl dinosaurus, ale byl to jejich kamarád. Žil ve stejné době.',
+              'Ve vodě žil Plesiosaurus. Měl dlouhý krk a plaval jako obrovská labuť.'
+            ],
+            funFact: 'Quetzalcoatlus měl křídla široká 10 metrů. To je širší než tvůj pokoj!'
+          },
+          {
+            title: 'Jak dinosauři žili',
+            paragraphs: [
+              'Dinosauři se líhli z vajíček! Maminka dinosauřice stavěla hnízdo a strážila svá miminka.',
+              'Někteří dinosauři žili ve stádu, jako krávy. Společně se bránili před masožravci.',
+              'Dinosauří miminka byla maličká a roztomilá. Rychle rostla a naučila se chodit hned po vylíhnutí.'
+            ],
+            funFact: 'Dinosauří vajíčka byla velká jako malý míč! A některá byla úplně kulatá.'
+          },
+          {
+            title: 'Velký třesk',
+            paragraphs: [
+              'Před 66 miliony let spadl z nebe obrovský kámen z vesmíru — meteorit! BUM!',
+              'Byl velký jako celá Praha! Narazil do Země a udělal obrovský prach a požáry.',
+              'Prach zakryl Slunce a bylo tma a zima. Dinosauři to nevydrželi. Ale malá zvířátka přežila!'
+            ],
+            funFact: 'Ptáčci jsou vlastně dinosauři! Když vidíš vrabečka, koukáš se na maličkého dinosaura.'
+          }
+        ],
+        exercises: [
+          { title: 'Zařvi jako T-Rex!', description: 'T-Rex měl nejhlasitější řev ze všech dinosaurů. Zkus to taky!', steps: ['Postav se rovně a narovnej se co nejvíc.', 'Nadechni se hodně hodně hluboko.', 'Otevři pusu co nejvíc dokážeš.', 'ZAŘVI ze všech sil! RRRAAAAA!', 'Ukaž zuby jako pravý T-Rex!'] },
+          { title: 'Dupej jako Brachiosaurus!', description: 'Brachiosaurus byl tak těžký, že se při chůzi třásla zem!', steps: ['Rozkroč se co nejšíř.', 'Zvedni jednu nohu vysoko.', 'DUPNI co nejhlasitěji!', 'Teď druhou nohu! DUP DUP DUP!', 'Projdi celý pokoj jako obrovský dinosaurus!'] },
+          { title: 'Leť jako Pteranodon!', description: 'Pteranodon létal nad hlavami dinosaurů na obrovských křídlech!', steps: ['Roztáhni ruce co nejšíř — to jsou tvá křídla!', 'Mávej rukama nahoru a dolů.', 'Běhej po pokoji a lítej!', 'Dělej zvuky větru — FŠŠŠ!', 'Přistaň opatrně na zem!'] },
+          { title: 'Schovej se jako Ankylosaurus!', description: 'Ankylosaurus se sbalil do klubíčka, když na něj útočil masožravec!', steps: ['Sedni si na zem.', 'Sbal se do kuličky jako Ankylosaurus!', 'Schovej hlavu mezi kolena.', 'Teď jsi v bezpečí — máš brnění!', 'Nikdo ti nemůže ublížit!'] },
+          { title: 'Vylíhni se z vajíčka!', description: 'Dinosauří mláďata se musela prodrat ven ze skořápky!', steps: ['Sbal se na zem do malého klubíčka.', 'Jsi uvnitř dinosauřího vajíčka!', 'Začni se hýbat a vrtět.', 'Tlač rukama ven — PRASK! Skořápka praská!', 'Vstaň a podívej se kolem — jsi na světě!'] },
+          { title: 'Dinosauří tanec!', description: 'Dinosauři sice netancovali, ale ty můžeš tancovat jako oni!', steps: ['Dupej nohama jako velký dinosaurus!', 'Mávej rukama jako Pteranodon!', 'Otáčej se dokola a vrť ocasem!', 'Zařvi při tom — RRRR!', 'Jsi nejlepší tancující dinosaurus!'] }
+        ],
+        questions: [
+          { question: 'Kolik rohů měl Triceratops?', options: ['Jeden', 'Tři', 'Deset'], correct: 1, explanation: 'Triceratops měl tři rohy — proto se jmenuje TRI-ceratops!' },
+          { question: 'Co jedl T-Rex?', options: ['Trávu a kytičky', 'Maso', 'Čokoládu'], correct: 1, explanation: 'T-Rex byl masožravec. Měl ostré zuby na trhání masa!' },
+          { question: 'Co spadlo z nebe a dinosauři vymřeli?', options: ['Déšť', 'Meteorit', 'Letadlo'], correct: 1, explanation: 'Obrovský meteorit spadl na Zemi a udělal obrovský prach.' },
+          { question: 'Kdo měl dlouhý krk a jedl listy ze stromů?', options: ['T-Rex', 'Brachiosaurus', 'Ankylosaurus'], correct: 1, explanation: 'Brachiosaurus měl krk jako žirafa, jen mnohem delší!' },
+          { question: 'Co měl Ankylosaurus na konci ocasu?', options: ['Květinu', 'Palcát', 'Křídla'], correct: 1, explanation: 'Ankylosaurus měl na ocasu těžký kostěný palcát na obranu!' },
+          { question: 'Z čeho se líhli dinosauři?', options: ['Z vajíček', 'Z vody', 'Ze stromů'], correct: 0, explanation: 'Dinosauři se líhli z vajíček, jako ptáčci nebo krokodýli!' },
+          { question: 'Co je vlastně dinosaurus?', options: ['Vrabček', 'Auto', 'Kytka'], correct: 0, explanation: 'Ptáci jsou potomci dinosaurů! Každý ptáček je maličký dinosaurus.' },
+          { question: 'Kdo uměl létat v době dinosaurů?', options: ['T-Rex', 'Pteranodon', 'Triceratops'], correct: 1, explanation: 'Pteranodon létal po obloze na obrovských křídlech!' },
+          { question: 'Proč měl Stegosaurus desky na zádech?', options: ['Aby byl hezký', 'Na obranu', 'Na létání'], correct: 1, explanation: 'Desky na zádech ho chránily a pomáhaly mu ohřívat se na sluníčku!' },
+          { question: 'Jak velký byl meteorit, který zabil dinosaury?', options: ['Jako míč', 'Jako auto', 'Jako celé město'], correct: 2, explanation: 'Meteorit byl obrovský — velký jako celá Praha!' }
+        ]
+      },
+      pt: {
+        homeTitle: 'Mundo dos Dinossauros',
+        homeSubtitle: 'Vem descobrir o mundo pré-histórico!',
+        btnLearn: 'Quero descobrir!',
+        btnQuiz: 'Quiz dos Dinossauros',
+        btnWelcome: '🔊 Ouvir boas-vindas',
+        backBtn: '← Voltar',
+        homeBtn: '← Início',
+        topicsTitle: 'Escola dos Dinossauros',
+        funFactLabel: 'Sabias que…?',
+        playAll: '🔊 Lê-me tudo',
+        stopAll: '⏹ Parar',
+        listen: 'Ouvir',
+        stop: 'Parar',
+        nextQuestion: 'Próxima pergunta →',
+        btnRetry: 'Tentar de novo',
+        btnHome: 'Início',
+        questionOf: (n, t) => `Pergunta ${n} de ${t}`,
+        scoreOf: (s, t) => `Corretas ${s} de ${t}`,
+        correctMessages: [
+          'Correto! És um especialista em dinossauros!', 'Muito bem! Acertaste!',
+          'Exatamente! Sabes muito!', 'Super! Tens tudo na ponta da língua!',
+          'Sim! És esperto como um velociraptor!'
+        ],
+        resultTitles: { 1: 'Aprendiz de dinossauros', 2: 'Conhecedor de dinossauros', 3: 'Mestre dos dinossauros!' },
+        resultMessages: {
+          1: 'Bom começo! Ouve as lições e tenta de novo — da próxima vez será ainda melhor!',
+          2: 'Ótimo trabalho! Já sabes muito sobre dinossauros. Mais um pouco e serás mestre!',
+          3: 'Incrível! Conheces os dinossauros como um verdadeiro paleontólogo!'
+        },
+        activitiesTitle: 'Atividades dos Dinossauros',
+        lessons: [
+          {
+            title: 'O que são dinossauros?',
+            paragraphs: [
+              'Os dinossauros eram animais enormes. Viveram há muito muito tempo, quando ainda não havia pessoas.',
+              'Alguns eram grandes como uma casa! Outros eram pequeninos, como uma galinha.',
+              'Os dinossauros viviam em toda a Terra. Estavam em todo o lado — nas florestas, junto aos rios e nas montanhas.'
+            ],
+            funFact: 'A palavra dinossauro significa "lagarto terrível". Mas alguns eram muito muito simpáticos!'
+          },
+          {
+            title: 'Grandes carnívoros',
+            paragraphs: [
+              'O Tyrannosaurus Rex era o rei dos dinossauros! Tinha uma boca enorme cheia de dentes afiados.',
+              'Os carnívoros comiam carne porque era cheia de energia. Tinham de ser rápidos e fortes.',
+              'O Spinosaurus tinha uma vela enorme nas costas. Era ainda maior que o T-Rex!'
+            ],
+            funFact: 'O T-Rex tinha dentes do tamanho de uma banana! Mas os seus bracinhos eram muito pequeninos.'
+          },
+          {
+            title: 'Herbívoros simpáticos',
+            paragraphs: [
+              'O Brachiosaurus tinha um pescoço muito muito comprido. Alcançava até as árvores mais altas!',
+              'Os herbívoros comiam plantas, folhas e fetos. Comiam o dia todo porque as plantas não têm tanta energia.',
+              'O Diplodocus tinha uma cauda tão comprida como um autocarro! Usava-a para afastar os carnívoros perigosos.'
+            ],
+            funFact: 'O Brachiosaurus comia tantas plantas por dia como se tu comesses 400 pratos de salada!'
+          },
+          {
+            title: 'Armaduras e cornos',
+            paragraphs: [
+              'O Triceratops tinha três grandes cornos e um escudo enorme na cabeça. Assim protegia-se dos carnívoros!',
+              'O Ankylosaurus tinha uma armadura inteira como uma tartaruga. E na ponta da cauda tinha uma clava pesada!',
+              'O Stegosaurus tinha grandes placas de osso nas costas. E na cauda tinha espigões — isso doía!'
+            ],
+            funFact: 'O escudo do Triceratops era largo como uma banheira! Nenhum carnívoro queria enfrentá-lo.'
+          },
+          {
+            title: 'Voadores e aquáticos',
+            paragraphs: [
+              'O Pteranodon voava pelo céu como um avião enorme! Tinha asas tão largas como um carro.',
+              'O Pteranodon na verdade não era um dinossauro, mas era amigo deles. Viveu na mesma época.',
+              'Na água vivia o Plesiosaurus. Tinha um pescoço comprido e nadava como um cisne gigante.'
+            ],
+            funFact: 'O Quetzalcoatlus tinha asas com 10 metros de largura. É mais largo que o teu quarto!'
+          },
+          {
+            title: 'Como viviam os dinossauros',
+            paragraphs: [
+              'Os dinossauros nasciam de ovos! A mamã dinossaura construía um ninho e vigiava os seus bebés.',
+              'Alguns dinossauros viviam em manadas, como as vacas. Juntos defendiam-se dos carnívoros.',
+              'Os bebés dinossauros eram pequeninos e fofos. Cresciam depressa e aprendiam a andar logo depois de nascer.'
+            ],
+            funFact: 'Os ovos de dinossauro eram grandes como uma bola pequena! E alguns eram completamente redondos.'
+          },
+          {
+            title: 'O grande impacto',
+            paragraphs: [
+              'Há 66 milhões de anos caiu do céu uma pedra enorme do espaço — um meteorito! BUM!',
+              'Era grande como Lisboa inteira! Atingiu a Terra e fez uma poeira e fogos enormes.',
+              'A poeira tapou o Sol e ficou escuro e frio. Os dinossauros não aguentaram. Mas os animais pequenos sobreviveram!'
+            ],
+            funFact: 'Os pássaros são na verdade dinossauros! Quando vês um pardal, estás a olhar para um dinossauro pequenino.'
+          }
+        ],
+        exercises: [
+          { title: 'Ruge como o T-Rex!', description: 'O T-Rex tinha o rugido mais alto de todos os dinossauros. Experimenta tu também!', steps: ['Fica de pé e estica-te o máximo que conseguires.', 'Inspira muito muito fundo.', 'Abre a boca o máximo que conseguires.', 'RUGE com toda a força! RRRAAAAA!', 'Mostra os dentes como um verdadeiro T-Rex!'] },
+          { title: 'Pisa como o Brachiosaurus!', description: 'O Brachiosaurus era tão pesado que o chão tremia quando andava!', steps: ['Abre bem as pernas.', 'Levanta um pé bem alto.', 'PISA com toda a força!', 'Agora o outro pé! TUM TUM TUM!', 'Atravessa a sala como um dinossauro enorme!'] },
+          { title: 'Voa como o Pteranodon!', description: 'O Pteranodon voava sobre as cabeças dos dinossauros com asas enormes!', steps: ['Estica os braços o máximo — são as tuas asas!', 'Bate os braços para cima e para baixo.', 'Corre pela sala a voar!', 'Faz sons de vento — FSSSHH!', 'Aterra com cuidado no chão!'] },
+          { title: 'Esconde-te como o Ankylosaurus!', description: 'O Ankylosaurus enrolava-se quando um carnívoro o atacava!', steps: ['Senta-te no chão.', 'Enrola-te como uma bola!', 'Esconde a cabeça entre os joelhos.', 'Agora estás seguro — tens armadura!', 'Ninguém te pode fazer mal!'] },
+          { title: 'Nasce de um ovo!', description: 'Os bebés dinossauros tinham de sair de dentro da casca!', steps: ['Enrola-te no chão bem pequenino.', 'Estás dentro de um ovo de dinossauro!', 'Começa a mexer-te e a abanar.', 'Empurra com os braços — CRACK! A casca parte!', 'Levanta-te e olha à volta — nasceste!'] },
+          { title: 'Dança dos dinossauros!', description: 'Os dinossauros não dançavam, mas tu podes dançar como eles!', steps: ['Pisa forte como um dinossauro grande!', 'Bate os braços como o Pteranodon!', 'Roda e abana a cauda!', 'Ruge enquanto danças — RRRR!', 'És o melhor dinossauro dançarino!'] }
+        ],
+        questions: [
+          { question: 'Quantos cornos tinha o Triceratops?', options: ['Um', 'Três', 'Dez'], correct: 1, explanation: 'O Triceratops tinha três cornos — por isso se chama TRI-ceratops!' },
+          { question: 'O que comia o T-Rex?', options: ['Erva e flores', 'Carne', 'Chocolate'], correct: 1, explanation: 'O T-Rex era carnívoro. Tinha dentes afiados para rasgar carne!' },
+          { question: 'O que caiu do céu e os dinossauros desapareceram?', options: ['Chuva', 'Meteorito', 'Avião'], correct: 1, explanation: 'Um meteorito enorme caiu na Terra e fez uma poeira gigante.' },
+          { question: 'Quem tinha pescoço comprido e comia folhas das árvores?', options: ['T-Rex', 'Brachiosaurus', 'Ankylosaurus'], correct: 1, explanation: 'O Brachiosaurus tinha um pescoço como uma girafa, só que muito mais comprido!' },
+          { question: 'O que tinha o Ankylosaurus na ponta da cauda?', options: ['Uma flor', 'Uma clava', 'Asas'], correct: 1, explanation: 'O Ankylosaurus tinha uma clava de osso pesada na cauda para se defender!' },
+          { question: 'De que nasciam os dinossauros?', options: ['De ovos', 'Da água', 'Das árvores'], correct: 0, explanation: 'Os dinossauros nasciam de ovos, como os pássaros ou os crocodilos!' },
+          { question: 'O que é na verdade um dinossauro?', options: ['Um pardal', 'Um carro', 'Uma flor'], correct: 0, explanation: 'As aves são descendentes dos dinossauros! Cada pássaro é um dinossauro pequenino.' },
+          { question: 'Quem sabia voar no tempo dos dinossauros?', options: ['T-Rex', 'Pteranodon', 'Triceratops'], correct: 1, explanation: 'O Pteranodon voava pelo céu com asas enormes!' },
+          { question: 'Porque tinha o Stegosaurus placas nas costas?', options: ['Para ser bonito', 'Para defesa', 'Para voar'], correct: 1, explanation: 'As placas nas costas protegiam-no e ajudavam-no a aquecer ao sol!' },
+          { question: 'Qual era o tamanho do meteorito que matou os dinossauros?', options: ['Como uma bola', 'Como um carro', 'Como uma cidade inteira'], correct: 2, explanation: 'O meteorito era enorme — grande como Lisboa inteira!' }
+        ]
+      },
+      es: {
+        homeTitle: 'Mundo de Dinosaurios',
+        homeSubtitle: '¡Ven a descubrir el mundo prehistórico!',
+        btnLearn: '¡Quiero descubrir!',
+        btnQuiz: 'Quiz de Dinosaurios',
+        btnWelcome: '🔊 Escuchar bienvenida',
+        backBtn: '← Volver',
+        homeBtn: '← Inicio',
+        topicsTitle: 'Escuela de Dinosaurios',
+        funFactLabel: '¿Sabías que…?',
+        playAll: '🔊 Léeme todo',
+        stopAll: '⏹ Parar',
+        listen: 'Escuchar',
+        stop: 'Parar',
+        nextQuestion: 'Siguiente pregunta →',
+        btnRetry: 'Intentar de nuevo',
+        btnHome: 'Inicio',
+        questionOf: (n, t) => `Pregunta ${n} de ${t}`,
+        scoreOf: (s, t) => `Correctas ${s} de ${t}`,
+        correctMessages: [
+          '¡Correcto! ¡Eres un experto en dinosaurios!', '¡Muy bien! ¡Acertaste!',
+          '¡Exacto! ¡Sabes mucho!', '¡Super! ¡Lo tienes dominado!',
+          '¡Sí! ¡Eres listo como un velociraptor!'
+        ],
+        resultTitles: { 1: 'Aprendiz de dinosaurios', 2: 'Conocedor de dinosaurios', 3: '¡Maestro de dinosaurios!' },
+        resultMessages: {
+          1: '¡Buen comienzo! Escucha las lecciones e inténtalo de nuevo — ¡la próxima vez será mejor!',
+          2: '¡Gran trabajo! Ya sabes mucho sobre dinosaurios. ¡Un poco más y serás maestro!',
+          3: '¡Increíble! ¡Conoces los dinosaurios como un verdadero paleontólogo!'
+        },
+        activitiesTitle: 'Actividades de Dinosaurios',
+        lessons: [
+          {
+            title: '¿Qué son los dinosaurios?',
+            paragraphs: [
+              'Los dinosaurios eran animales enormes. Vivieron hace mucho mucho tiempo, cuando no había personas.',
+              '¡Algunos eran grandes como una casa! Otros eran pequeñitos, como una gallina.',
+              'Los dinosaurios vivían en toda la Tierra. Estaban en todas partes — en bosques, junto a ríos y en montañas.'
+            ],
+            funFact: 'La palabra dinosaurio significa "lagarto terrible". ¡Pero algunos eran muy muy buenos!'
+          },
+          {
+            title: 'Grandes carnívoros',
+            paragraphs: [
+              '¡Tyrannosaurus Rex era el rey de los dinosaurios! Tenía una boca enorme llena de dientes afilados.',
+              'Los carnívoros comían carne porque estaba llena de energía. Tenían que ser rápidos y fuertes.',
+              '¡El Spinosaurus tenía una vela enorme en la espalda. Era aún más grande que el T-Rex!'
+            ],
+            funFact: '¡El T-Rex tenía dientes del tamaño de un plátano! Pero sus bracitos eran muy pequeñitos.'
+          },
+          {
+            title: 'Herbívoros amables',
+            paragraphs: [
+              '¡El Brachiosaurus tenía un cuello muy muy largo. Alcanzaba los árboles más altos!',
+              'Los herbívoros comían plantas, hojas y helechos. Comían todo el día porque las plantas no tienen tanta energía.',
+              '¡El Diplodocus tenía una cola tan larga como un autobús! La usaba para alejar a los carnívoros peligrosos.'
+            ],
+            funFact: '¡El Brachiosaurus comía tantas plantas al día como si tú comieras 400 platos de ensalada!'
+          },
+          {
+            title: 'Armaduras y cuernos',
+            paragraphs: [
+              '¡El Triceratops tenía tres grandes cuernos y un escudo enorme en la cabeza. Así se protegía de los carnívoros!',
+              '¡El Ankylosaurus tenía una armadura entera como una tortuga. Y en la punta de la cola tenía una maza pesada!',
+              '¡El Stegosaurus tenía grandes placas de hueso en la espalda. Y en la cola tenía púas — eso dolía!'
+            ],
+            funFact: '¡El escudo del Triceratops era ancho como una bañera! Ningún carnívoro quería enfrentarlo.'
+          },
+          {
+            title: 'Voladores y acuáticos',
+            paragraphs: [
+              '¡El Pteranodon volaba por el cielo como un avión enorme! Tenía alas tan anchas como un coche.',
+              'El Pteranodon en realidad no era un dinosaurio, pero era su amigo. Vivió en la misma época.',
+              'En el agua vivía el Plesiosaurus. Tenía un cuello largo y nadaba como un cisne gigante.'
+            ],
+            funFact: '¡El Quetzalcoatlus tenía alas de 10 metros de ancho. Es más ancho que tu habitación!'
+          },
+          {
+            title: 'Cómo vivían los dinosaurios',
+            paragraphs: [
+              '¡Los dinosaurios nacían de huevos! La mamá dinosauria construía un nido y vigilaba a sus bebés.',
+              'Algunos dinosaurios vivían en manadas, como las vacas. Juntos se defendían de los carnívoros.',
+              'Los bebés dinosaurios eran pequeñitos y adorables. Crecían rápido y aprendían a caminar justo después de nacer.'
+            ],
+            funFact: '¡Los huevos de dinosaurio eran grandes como una pelota pequeña! Y algunos eran completamente redondos.'
+          },
+          {
+            title: 'El gran impacto',
+            paragraphs: [
+              '¡Hace 66 millones de años cayó del cielo una piedra enorme del espacio — un meteorito! ¡BUM!',
+              '¡Era grande como toda Madrid! Golpeó la Tierra e hizo polvo y fuegos enormes.',
+              'El polvo tapó el Sol y quedó oscuro y frío. Los dinosaurios no aguantaron. ¡Pero los animales pequeños sobrevivieron!'
+            ],
+            funFact: '¡Los pájaros son en realidad dinosaurios! Cuando ves un gorrión, estás mirando a un dinosaurio pequeñito.'
+          }
+        ],
+        exercises: [
+          { title: '¡Ruge como el T-Rex!', description: '¡El T-Rex tenía el rugido más fuerte de todos los dinosaurios. Inténtalo tú también!', steps: ['Ponte de pie y estírate todo lo que puedas.', 'Respira muy muy profundo.', 'Abre la boca todo lo que puedas.', '¡RUGE con todas tus fuerzas! ¡RRRAAAAA!', '¡Enseña los dientes como un verdadero T-Rex!'] },
+          { title: '¡Pisa como el Brachiosaurus!', description: '¡El Brachiosaurus era tan pesado que el suelo temblaba cuando caminaba!', steps: ['Abre bien las piernas.', 'Levanta un pie bien alto.', '¡PISA con toda la fuerza!', '¡Ahora el otro pie! ¡PUM PUM PUM!', '¡Cruza la sala como un dinosaurio enorme!'] },
+          { title: '¡Vuela como el Pteranodon!', description: '¡El Pteranodon volaba sobre las cabezas de los dinosaurios con alas enormes!', steps: ['Estira los brazos al máximo — ¡son tus alas!', 'Mueve los brazos arriba y abajo.', '¡Corre por la sala y vuela!', '¡Haz sonidos de viento — FSSHH!', '¡Aterriza con cuidado en el suelo!'] },
+          { title: '¡Escóndete como el Ankylosaurus!', description: '¡El Ankylosaurus se hacía una bola cuando lo atacaba un carnívoro!', steps: ['Siéntate en el suelo.', '¡Hazte una bola como el Ankylosaurus!', 'Esconde la cabeza entre las rodillas.', '¡Ahora estás a salvo — tienes armadura!', '¡Nadie puede hacerte daño!'] },
+          { title: '¡Nace de un huevo!', description: '¡Los bebés dinosaurios tenían que salir de dentro de la cáscara!', steps: ['Enróllate en el suelo bien pequeñito.', '¡Estás dentro de un huevo de dinosaurio!', 'Empieza a moverte y a temblar.', '¡Empuja con los brazos — ¡CRACK! ¡La cáscara se rompe!', '¡Levántate y mira a tu alrededor — ¡has nacido!'] },
+          { title: '¡Baile de dinosaurios!', description: '¡Los dinosaurios no bailaban, pero tú puedes bailar como ellos!', steps: ['¡Pisa fuerte como un dinosaurio grande!', '¡Mueve los brazos como el Pteranodon!', '¡Gira y menea la cola!', '¡Ruge mientras bailas — ¡RRRR!', '¡Eres el mejor dinosaurio bailarín!'] }
+        ],
+        questions: [
+          { question: '¿Cuántos cuernos tenía el Triceratops?', options: ['Uno', 'Tres', 'Diez'], correct: 1, explanation: '¡El Triceratops tenía tres cuernos — por eso se llama TRI-ceratops!' },
+          { question: '¿Qué comía el T-Rex?', options: ['Hierba y flores', 'Carne', 'Chocolate'], correct: 1, explanation: '¡El T-Rex era carnívoro. Tenía dientes afilados para desgarrar carne!' },
+          { question: '¿Qué cayó del cielo y los dinosaurios desaparecieron?', options: ['Lluvia', 'Meteorito', 'Avión'], correct: 1, explanation: 'Un meteorito enorme cayó en la Tierra e hizo un polvo gigante.' },
+          { question: '¿Quién tenía cuello largo y comía hojas de los árboles?', options: ['T-Rex', 'Brachiosaurus', 'Ankylosaurus'], correct: 1, explanation: '¡El Brachiosaurus tenía un cuello como una jirafa, pero mucho más largo!' },
+          { question: '¿Qué tenía el Ankylosaurus en la punta de la cola?', options: ['Una flor', 'Una maza', 'Alas'], correct: 1, explanation: '¡El Ankylosaurus tenía una maza de hueso pesada en la cola para defenderse!' },
+          { question: '¿De qué nacían los dinosaurios?', options: ['De huevos', 'Del agua', 'De los árboles'], correct: 0, explanation: '¡Los dinosaurios nacían de huevos, como los pájaros o los cocodrilos!' },
+          { question: '¿Qué es en realidad un dinosaurio?', options: ['Un gorrión', 'Un coche', 'Una flor'], correct: 0, explanation: '¡Las aves son descendientes de los dinosaurios! Cada pájaro es un dinosaurio pequeñito.' },
+          { question: '¿Quién sabía volar en la época de los dinosaurios?', options: ['T-Rex', 'Pteranodon', 'Triceratops'], correct: 1, explanation: '¡El Pteranodon volaba por el cielo con alas enormes!' },
+          { question: '¿Por qué tenía el Stegosaurus placas en la espalda?', options: ['Para ser guapo', 'Para defensa', 'Para volar'], correct: 1, explanation: '¡Las placas en la espalda lo protegían y le ayudaban a calentarse al sol!' },
+          { question: '¿Cómo de grande era el meteorito que mató a los dinosaurios?', options: ['Como una pelota', 'Como un coche', 'Como toda una ciudad'], correct: 2, explanation: '¡El meteorito era enorme — grande como toda Madrid!' }
+        ]
+      }
+    };
+
+    function T(key) { return i18n[currentLang][key]; }
+
+    function setLang(lang) {
+      currentLang = lang;
+      Voiceover.setLang(lang);
+      // Update lang switcher
+      document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+      document.querySelector(`.lang-btn[onclick*="'${lang}'"]`).classList.add('active');
+      // Update static UI
+      document.getElementById('homeTitle').textContent = T('homeTitle');
+      document.getElementById('homeSubtitle').textContent = T('homeSubtitle');
+      document.getElementById('btnLearn').textContent = T('btnLearn');
+      document.getElementById('btnQuiz').textContent = T('btnQuiz');
+      document.getElementById('btnWelcome').innerHTML = T('btnWelcome');
+      document.getElementById('btnBackTopics').innerHTML = T('backBtn');
+      document.getElementById('topicsTitle').textContent = T('topicsTitle');
+      document.getElementById('btnBackLesson').innerHTML = T('backBtn');
+      document.getElementById('funFactLabel').textContent = T('funFactLabel');
+      document.getElementById('btnBackQuiz').innerHTML = T('homeBtn');
+      document.getElementById('quizNextBtn').textContent = T('nextQuestion');
+      document.getElementById('btnRetry').textContent = T('btnRetry');
+      document.getElementById('btnResultsHome').textContent = T('btnHome');
+      document.title = T('homeTitle');
+      renderTopics();
+      SFX.click();
+    }
+
+    // === VOICEOVER PLAYER ===
+    const Voiceover = (() => {
+      let currentAudio = null;
+      let onEndCallback = null;
+      let lang = 'cs';
+      const cache = {};
+
+      function getPath(filename) {
+        return lang === 'cs' ? `audio/${filename}` : `audio/${lang}/${filename}`;
+      }
+
+      function getAudio(filename) {
+        const p = getPath(filename);
+        if (!cache[p]) cache[p] = new Audio(p);
+        return cache[p];
+      }
+
+      function play(filename, onEnd) {
+        stop();
+        currentAudio = getAudio(filename);
+        currentAudio.currentTime = 0;
+        onEndCallback = onEnd || null;
+        currentAudio.onended = () => {
+          const cb = onEndCallback;
+          currentAudio = null;
+          onEndCallback = null;
+          if (cb) cb();
+        };
+        currentAudio.play().catch(() => {});
+        return currentAudio;
+      }
+
+      return {
+        setLang(l) { lang = l; },
+        playWelcome() { play('home-welcome.mp3'); },
+        playTopic(index) { play(`topic-${index}.mp3`); },
+        playParagraph(lessonIndex, paraIndex, onEnd) {
+          return play(`lesson-${lessonIndex}-p${paraIndex}.mp3`, onEnd);
+        },
+        playFunFact(lessonIndex) { play(`lesson-${lessonIndex}-fun.mp3`); },
+        playQuiz(questionIndex) { play(`quiz-q${questionIndex}.mp3`); },
+        playExercise(exerciseIndex) { return play(`exercise-${exerciseIndex}.mp3`); },
+        stop() {
+          if (currentAudio) {
+            currentAudio.pause();
+            currentAudio.currentTime = 0;
+            currentAudio.onended = null;
+            currentAudio = null;
+            onEndCallback = null;
+          }
+        },
+        isPlaying() { return currentAudio && !currentAudio.paused; },
+        getCurrent() { return currentAudio; }
+      };
+    })();
+
+    // === STATIC DATA: lesson structure (shared across languages) ===
+    const lessonMeta = [
+      { emoji: '🦕', color: '#4CAF50' },
+      { emoji: '🦖', color: '#F44336' },
+      { emoji: '🌿', color: '#8BC34A' },
+      { emoji: '🛡️', color: '#FF9800' },
+      { emoji: '🦅', color: '#03A9F4' },
+      { emoji: '🥚', color: '#9C27B0' },
+      { emoji: '☄️', color: '#FF5722' }
+    ];
+
+    const exerciseMeta = [
+      { emoji: '🦖', anim: 'anim-jaw', color: '#F44336', difficulty: '⭐' },
+      { emoji: '🦕', anim: 'anim-stomp', color: '#4CAF50', difficulty: '⭐' },
+      { emoji: '🦅', anim: 'anim-wing', color: '#03A9F4', difficulty: '⭐' },
+      { emoji: '🛡️', anim: 'anim-curl', color: '#FF9800', difficulty: '⭐' },
+      { emoji: '🥚', anim: 'anim-wobble', color: '#9C27B0', difficulty: '⭐⭐' },
+      { emoji: '💃', anim: 'anim-dance', color: '#FFC107', difficulty: '⭐⭐' }
+    ];
+
+    // === SVG Illustrations ===
+    const illustrations = {
+      0: [
+        `<svg viewBox="0 0 280 180" xmlns="http://www.w3.org/2000/svg">
+          <rect width="280" height="180" rx="16" fill="#e8f5e9"/>
+          <circle cx="230" cy="40" r="30" fill="#FFC107" opacity="0.9"/>
+          <polygon points="0,180 30,130 70,150 120,100 160,130 200,90 250,110 280,100 280,180" fill="#81C784"/>
+          <polygon points="0,180 40,140 80,160 130,120 170,145 210,115 280,130 280,180" fill="#66BB6A"/>
+          <g transform="translate(50,80)"><ellipse cx="25" cy="25" rx="18" ry="15" fill="#8BC34A"/><circle cx="20" cy="18" r="10" fill="#8BC34A"/><circle cx="17" cy="15" r="3" fill="#fff"/><circle cx="17" cy="15" r="1.5" fill="#333"/><rect x="38" y="22" width="18" height="5" rx="2" fill="#8BC34A"/><rect x="15" y="38" width="6" height="10" rx="2" fill="#8BC34A"/><rect x="28" y="38" width="6" height="10" rx="2" fill="#8BC34A"/></g>
+          <g transform="translate(160,55)"><ellipse cx="20" cy="40" rx="14" ry="20" fill="#4CAF50"/><ellipse cx="20" cy="12" r="10" fill="#4CAF50"/><line x1="20" y1="22" x2="20" y2="30" stroke="#4CAF50" stroke-width="8"/><circle cx="17" cy="9" r="2.5" fill="#fff"/><circle cx="17" cy="9" r="1.2" fill="#333"/><rect x="30" y="35" width="12" height="4" rx="2" fill="#4CAF50"/><rect x="12" y="58" width="5" height="14" rx="2" fill="#4CAF50"/><rect x="22" y="58" width="5" height="14" rx="2" fill="#4CAF50"/></g>
+        </svg>`,
+        `<svg viewBox="0 0 280 140" xmlns="http://www.w3.org/2000/svg">
+          <rect width="280" height="140" rx="16" fill="#FFF8E1"/>
+          <g transform="translate(20,20)"><rect x="0" y="85" width="80" height="4" fill="#8D6E63"/><ellipse cx="40" cy="50" rx="20" ry="28" fill="#4CAF50"/><circle cx="40" cy="18" r="14" fill="#4CAF50"/><circle cx="36" cy="14" r="3" fill="#fff"/><circle cx="36" cy="14" r="1.5" fill="#333"/><rect x="30" y="75" width="7" height="15" rx="2" fill="#4CAF50"/><rect x="43" y="75" width="7" height="15" rx="2" fill="#4CAF50"/></g>
+          <g transform="translate(120,60)"><ellipse cx="20" cy="22" rx="12" ry="10" fill="#8BC34A"/><circle cx="16" cy="14" r="7" fill="#8BC34A"/><circle cx="14" cy="12" r="2" fill="#fff"/><circle cx="14" cy="12" r="1" fill="#333"/><rect x="10" y="30" width="4" height="8" rx="1" fill="#8BC34A"/><rect x="20" y="30" width="4" height="8" rx="1" fill="#8BC34A"/></g>
+          <g transform="translate(200,50)"><rect x="0" y="0" width="60" height="60" fill="none" stroke="#8D6E63" stroke-width="1" stroke-dasharray="3,3"/><text x="30" y="35" text-anchor="middle" fill="#8D6E63" font-size="28">🏠</text></g>
+        </svg>`
+      ],
+      1: [
+        `<svg viewBox="0 0 280 180" xmlns="http://www.w3.org/2000/svg"><rect width="280" height="180" rx="16" fill="#FFEBEE"/><g transform="translate(60,20)"><ellipse cx="80" cy="80" rx="45" ry="35" fill="#F44336"/><ellipse cx="50" cy="50" rx="28" ry="22" fill="#F44336"/><path d="M32,40 L28,32 L36,38 L34,30 L42,38 L40,28 L48,38" fill="#fff"/><circle cx="42" cy="45" r="5" fill="#fff"/><circle cx="42" cy="45" r="2.5" fill="#333"/><rect x="120" y="70" width="30" height="8" rx="3" fill="#F44336"/><rect x="60" y="110" width="10" height="22" rx="3" fill="#F44336"/><rect x="85" y="110" width="10" height="22" rx="3" fill="#F44336"/><rect x="30" y="68" width="8" height="6" rx="3" fill="#F44336" transform="rotate(-20 34 71)"/><rect x="25" y="78" width="8" height="6" rx="3" fill="#F44336" transform="rotate(-15 29 81)"/></g><text x="140" y="170" text-anchor="middle" fill="#C62828" font-size="12" font-weight="bold" font-family="Inter,sans-serif">T-Rex</text></svg>`,
+        `<svg viewBox="0 0 280 140" xmlns="http://www.w3.org/2000/svg"><rect width="280" height="140" rx="16" fill="#FFF3E0"/><g transform="translate(30,15)"><ellipse cx="40" cy="55" rx="22" ry="18" fill="#E53935"/><circle cx="30" cy="38" r="14" fill="#E53935"/><circle cx="25" cy="34" r="3" fill="#fff"/><circle cx="25" cy="34" r="1.5" fill="#333"/><path d="M18,30 L16,24 L22,28" fill="#fff"/><rect x="56" y="48" width="16" height="5" rx="2" fill="#E53935"/><rect x="30" y="70" width="6" height="12" rx="2" fill="#E53935"/><rect x="44" y="70" width="6" height="12" rx="2" fill="#E53935"/></g><text x="140" y="65" fill="#8D6E63" font-size="14" text-anchor="middle">VS</text><g transform="translate(170,10)"><ellipse cx="40" cy="55" rx="25" ry="20" fill="#D32F2F"/><circle cx="28" cy="35" r="15" fill="#D32F2F"/><circle cx="23" cy="31" r="3" fill="#fff"/><circle cx="23" cy="31" r="1.5" fill="#333"/><path d="M22,55 Q40,30 55,55" fill="#FF8A65" opacity="0.5"/><rect x="58" y="48" width="18" height="5" rx="2" fill="#D32F2F"/><rect x="28" y="73" width="7" height="14" rx="2" fill="#D32F2F"/><rect x="44" y="73" width="7" height="14" rx="2" fill="#D32F2F"/></g></svg>`
+      ],
+      2: [
+        `<svg viewBox="0 0 280 180" xmlns="http://www.w3.org/2000/svg"><rect width="280" height="180" rx="16" fill="#F1F8E9"/><rect x="200" y="20" width="30" height="130" rx="4" fill="#8D6E63"/><ellipse cx="215" cy="15" rx="30" ry="20" fill="#66BB6A"/><ellipse cx="230" cy="25" rx="20" ry="15" fill="#81C784"/><ellipse cx="200" cy="20" rx="22" ry="16" fill="#4CAF50"/><g transform="translate(30,30)"><ellipse cx="60" cy="80" rx="30" ry="22" fill="#8BC34A"/><line x1="60" y1="60" x2="60" y2="20" stroke="#8BC34A" stroke-width="12" stroke-linecap="round"/><circle cx="60" cy="14" r="12" fill="#8BC34A"/><circle cx="55" cy="10" r="3" fill="#fff"/><circle cx="55" cy="10" r="1.5" fill="#333"/><rect x="42" y="98" width="10" height="26" rx="3" fill="#8BC34A"/><rect x="62" y="98" width="10" height="26" rx="3" fill="#8BC34A"/></g></svg>`,
+        `<svg viewBox="0 0 280 140" xmlns="http://www.w3.org/2000/svg"><rect width="280" height="140" rx="16" fill="#E8F5E9"/><g transform="translate(20,30)"><ellipse cx="80" cy="45" rx="40" ry="20" fill="#7CB342"/><circle cx="50" cy="35" r="12" fill="#7CB342"/><circle cx="45" cy="32" r="3" fill="#fff"/><circle cx="45" cy="32" r="1.5" fill="#333"/><rect x="115" y="38" width="70" height="8" rx="3" fill="#7CB342"/><rect x="60" y="62" width="8" height="16" rx="3" fill="#7CB342"/><rect x="90" y="62" width="8" height="16" rx="3" fill="#7CB342"/></g></svg>`
+      ],
+      3: [
+        `<svg viewBox="0 0 280 180" xmlns="http://www.w3.org/2000/svg"><rect width="280" height="180" rx="16" fill="#FFF3E0"/><g transform="translate(50,25)"><ellipse cx="90" cy="80" rx="40" ry="30" fill="#FF9800"/><circle cx="55" cy="60" r="28" fill="#FF9800"/><ellipse cx="55" cy="60" rx="38" ry="28" fill="#FFB74D" opacity="0.4"/><polygon points="35,38 30,20 40,35" fill="#F57C00"/><polygon points="50,32 48,14 55,30" fill="#F57C00"/><polygon points="65,38 68,20 70,36" fill="#F57C00"/><circle cx="46" cy="55" r="4" fill="#fff"/><circle cx="46" cy="55" r="2" fill="#333"/><rect x="70" y="105" width="10" height="20" rx="3" fill="#FF9800"/><rect x="95" y="105" width="10" height="20" rx="3" fill="#FF9800"/></g><text x="140" y="170" text-anchor="middle" fill="#E65100" font-size="12" font-weight="bold" font-family="Inter,sans-serif">Triceratops</text></svg>`,
+        `<svg viewBox="0 0 280 140" xmlns="http://www.w3.org/2000/svg"><rect width="280" height="140" rx="16" fill="#FBE9E7"/><g transform="translate(15,15)"><ellipse cx="55" cy="50" rx="30" ry="18" fill="#795548"/><circle cx="35" cy="40" r="12" fill="#795548"/><circle cx="30" cy="37" r="3" fill="#fff"/><circle cx="30" cy="37" r="1.5" fill="#333"/><rect x="80" y="44" width="15" height="6" rx="3" fill="#795548"/><circle cx="97" cy="47" r="6" fill="#8D6E63"/><rect x="40" y="66" width="6" height="12" rx="2" fill="#795548"/><rect x="60" y="66" width="6" height="12" rx="2" fill="#795548"/></g><g transform="translate(150,15)"><ellipse cx="50" cy="50" rx="28" ry="20" fill="#FF7043"/><circle cx="30" cy="40" r="12" fill="#FF7043"/><circle cx="26" cy="37" r="3" fill="#fff"/><circle cx="26" cy="37" r="1.5" fill="#333"/><polygon points="30,25 28,12 35,22" fill="#FF8A65"/><polygon points="42,22 40,8 48,18" fill="#FF8A65"/><polygon points="54,25 53,12 60,22" fill="#FF8A65"/><polygon points="64,30 66,16 70,28" fill="#FF8A65"/><rect x="35" y="68" width="6" height="12" rx="2" fill="#FF7043"/><rect x="55" y="68" width="6" height="12" rx="2" fill="#FF7043"/></g></svg>`
+      ],
+      4: [
+        `<svg viewBox="0 0 280 180" xmlns="http://www.w3.org/2000/svg"><rect width="280" height="180" rx="16" fill="#E1F5FE"/><circle cx="50" cy="40" r="18" fill="#fff" opacity="0.7"/><circle cx="70" cy="35" r="14" fill="#fff" opacity="0.5"/><circle cx="220" cy="50" r="20" fill="#fff" opacity="0.6"/><g transform="translate(60,50)"><path d="M80,40 Q40,0 0,40 Q40,50 80,40" fill="#03A9F4"/><circle cx="30" cy="35" r="12" fill="#0288D1"/><circle cx="25" cy="32" r="3" fill="#fff"/><circle cx="25" cy="32" r="1.5" fill="#333"/><polygon points="18,30 15,22 22,28" fill="#0277BD"/></g><text x="140" y="130" text-anchor="middle" fill="#01579B" font-size="12" font-weight="bold" font-family="Inter,sans-serif">Pteranodon</text></svg>`,
+        `<svg viewBox="0 0 280 140" xmlns="http://www.w3.org/2000/svg"><rect width="280" height="140" rx="16" fill="#E0F7FA"/><rect x="0" y="60" width="280" height="80" rx="0" fill="#80DEEA" opacity="0.3"/><g transform="translate(60,30)"><ellipse cx="80" cy="60" rx="30" ry="20" fill="#0097A7"/><path d="M80,60 Q60,20 50,40 Q40,10 30,30 Q20,0 15,25" stroke="#0097A7" stroke-width="6" fill="none" stroke-linecap="round"/><circle cx="15" cy="22" r="8" fill="#0097A7"/><circle cx="12" cy="19" r="2.5" fill="#fff"/><circle cx="12" cy="19" r="1.2" fill="#333"/></g><text x="140" y="120" text-anchor="middle" fill="#00695C" font-size="11" font-family="Inter,sans-serif">Plesiosaurus</text></svg>`
+      ],
+      5: [
+        `<svg viewBox="0 0 280 180" xmlns="http://www.w3.org/2000/svg"><rect width="280" height="180" rx="16" fill="#F3E5F5"/><ellipse cx="140" cy="140" rx="90" ry="20" fill="#D7CCC8"/><g transform="translate(80,80)"><ellipse cx="40" cy="30" rx="45" ry="22" fill="#BCAAA4"/><ellipse cx="15" cy="20" rx="18" ry="14" fill="#F5F5F5"/><ellipse cx="40" cy="18" rx="18" ry="14" fill="#FFF8E1"/><ellipse cx="65" cy="20" rx="18" ry="14" fill="#F5F5F5"/></g><g transform="translate(140,40)"><ellipse cx="30" cy="45" rx="18" ry="22" fill="#9C27B0"/><circle cx="22" cy="28" r="12" fill="#9C27B0"/><circle cx="18" cy="25" r="3" fill="#fff"/><circle cx="18" cy="25" r="1.5" fill="#333"/><rect x="20" y="64" width="6" height="12" rx="2" fill="#9C27B0"/><rect x="32" y="64" width="6" height="12" rx="2" fill="#9C27B0"/></g></svg>`,
+        `<svg viewBox="0 0 280 140" xmlns="http://www.w3.org/2000/svg"><rect width="280" height="140" rx="16" fill="#FCE4EC"/><g transform="translate(30,20)"><ellipse cx="35" cy="55" rx="28" ry="18" fill="#BCAAA4"/><path d="M20,48 L25,42 L30,48" stroke="#8D6E63" stroke-width="2" fill="none"/><circle cx="25" cy="40" r="8" fill="#CE93D8"/><circle cx="22" cy="38" r="2" fill="#fff"/><circle cx="22" cy="38" r="1" fill="#333"/></g><g transform="translate(110,25)"><ellipse cx="25" cy="50" rx="20" ry="14" fill="#BCAAA4"/><path d="M15,44 L18,38 L22,44" stroke="#8D6E63" stroke-width="2" fill="none"/><circle cx="18" cy="36" r="7" fill="#AED581"/><circle cx="15" cy="34" r="2" fill="#fff"/><circle cx="15" cy="34" r="1" fill="#333"/></g><g transform="translate(190,30)"><ellipse cx="25" cy="45" rx="20" ry="14" fill="#BCAAA4"/><path d="M12,38 L17,30 L22,38" stroke="#8D6E63" stroke-width="2" fill="none"/><circle cx="17" cy="28" r="7" fill="#FFB74D"/><circle cx="14" cy="26" r="2" fill="#fff"/><circle cx="14" cy="26" r="1" fill="#333"/></g></svg>`
+      ],
+      6: [
+        `<svg viewBox="0 0 280 180" xmlns="http://www.w3.org/2000/svg"><rect width="280" height="180" rx="16" fill="#263238"/><circle cx="80" cy="130" r="60" fill="#1B5E20" opacity="0.3"/><circle cx="200" cy="140" r="50" fill="#1B5E20" opacity="0.2"/><g transform="translate(160,10)"><circle cx="20" cy="20" r="14" fill="#FF5722"/><circle cx="20" cy="20" r="8" fill="#FF9800"/><circle cx="20" cy="20" r="4" fill="#FFC107"/><line x1="20" y1="34" x2="70" y2="100" stroke="#FF5722" stroke-width="5" opacity="0.7"/></g><text x="140" y="145" text-anchor="middle" fill="#FFCC80" font-size="24" font-weight="bold" font-family="Inter,sans-serif">BUM!</text><text x="140" y="170" text-anchor="middle" fill="#BCAAA4" font-size="11" font-family="Inter,sans-serif">Meteorit</text></svg>`,
+        `<svg viewBox="0 0 280 140" xmlns="http://www.w3.org/2000/svg"><rect width="280" height="140" rx="16" fill="#37474F"/><rect x="0" y="90" width="280" height="50" rx="0" fill="#4E342E"/><g transform="translate(40,55)"><ellipse cx="25" cy="25" rx="16" ry="12" fill="#8D6E63"/><circle cx="18" cy="18" r="6" fill="#8D6E63"/><circle cx="15" cy="16" r="2" fill="#fff"/><circle cx="15" cy="16" r="1" fill="#333"/><rect x="15" y="35" width="4" height="6" rx="1" fill="#8D6E63"/><rect x="25" y="35" width="4" height="6" rx="1" fill="#8D6E63"/></g><g transform="translate(190,30)"><path d="M30,50 Q25,30 15,35 Q20,20 30,25 Q28,10 40,18 Q45,5 50,18 Q58,10 55,25 Q65,22 58,35 Q68,38 55,45 Z" fill="#4CAF50" opacity="0.6"/><circle cx="35" cy="35" r="5" fill="#2196F3"/><circle cx="33" cy="33" r="1.5" fill="#fff"/></g></svg>`
+      ]
+    };
+
+    // === STATE ===
+    let currentScreen = 'screen-home';
+    let quizQuestions = [];
+    let currentQuestionIndex = 0;
+    let score = 0;
+    let answering = false;
+    let currentLessonIndex = -1;
+    let playAllActive = false;
+
+    // === NAVIGATION ===
+    function showScreen(screenId) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      const screen = document.getElementById(screenId);
+      screen.classList.add('active');
+      screen.style.animation = 'none';
+      screen.offsetHeight;
+      screen.style.animation = '';
+      currentScreen = screenId;
+      SFX.swoosh();
+      if (screenId !== 'screen-lesson' && screenId !== 'screen-quiz') {
+        Voiceover.stop();
+        playAllActive = false;
+      }
+    }
+
+    // === TOPICS RENDERING ===
+    function renderTopics() {
+      const grid = document.getElementById('topicsGrid');
+      grid.innerHTML = '';
+      const tLessons = T('lessons');
+      lessonMeta.forEach((meta, i) => {
+        const card = document.createElement('div');
+        card.className = 'topic-card';
+        card.onclick = (e) => {
+          if (e.target.closest('.vo-topic-btn')) return;
+          SFX.click(); renderLesson(i);
+        };
+        card.innerHTML = `
+          <span class="emoji">${meta.emoji}</span>
+          <span class="title">${tLessons[i].title}</span>
+          <button class="vo-topic-btn" onclick="event.stopPropagation(); Voiceover.playTopic(${i})">🔊</button>
+        `;
+        grid.appendChild(card);
+      });
+      // Activities card
+      const actCard = document.createElement('div');
+      actCard.className = 'topic-card';
+      actCard.onclick = () => { SFX.click(); renderActivities(); };
+      actCard.innerHTML = `<span class="emoji">🎮</span><span class="title">${T('activitiesTitle')}</span>`;
+      grid.appendChild(actCard);
+    }
+
+    // === LESSON RENDERING ===
+    function renderLesson(index) {
+      currentLessonIndex = index;
+      playAllActive = false;
+      const meta = lessonMeta[index];
+      const tLesson = T('lessons')[index];
+      const lessonIllustrations = illustrations[index] || [];
+      document.getElementById('lessonEmoji').textContent = meta.emoji;
+      document.getElementById('lessonTitle').textContent = tLesson.title;
+      document.getElementById('playAllBtn').style.display = 'inline-flex';
+      document.getElementById('playAllBtn').classList.remove('playing');
+      document.getElementById('playAllBtn').innerHTML = T('playAll');
+      document.getElementById('funFactLabel').textContent = T('funFactLabel');
+
+      const content = document.getElementById('lessonContent');
+      content.innerHTML = '';
+
+      if (lessonIllustrations[0]) {
+        const illDiv = document.createElement('div');
+        illDiv.className = 'lesson-illustration';
+        illDiv.innerHTML = lessonIllustrations[0];
+        content.appendChild(illDiv);
+      }
+
+      tLesson.paragraphs.forEach((p, i) => {
+        const row = document.createElement('div');
+        row.className = 'lesson-para-row';
+        row.innerHTML = `
+          <p>${p}</p>
+          <button class="vo-para-btn" id="vo-para-${i}" onclick="playParagraphVO(${i})">🔊</button>
+        `;
+        content.appendChild(row);
+
+        if (i === 0 && lessonIllustrations[1]) {
+          const illDiv = document.createElement('div');
+          illDiv.className = 'lesson-illustration';
+          illDiv.innerHTML = lessonIllustrations[1];
+          content.appendChild(illDiv);
+        } else if (i < tLesson.paragraphs.length - 1) {
+          const divider = document.createElement('div');
+          divider.className = 'lesson-divider';
+          divider.textContent = '🦕 🦖 🦕';
+          content.appendChild(divider);
+        }
+      });
+
+      document.getElementById('funFactText').textContent = tLesson.funFact;
+      document.getElementById('voFactBtn').classList.remove('playing');
+      document.getElementById('lessonFunFact').style.display = '';
+
+      showScreen('screen-lesson');
+      if (topicSounds[index]) topicSounds[index]();
+
+      // Auto-play ALL paragraphs sequentially
+      setTimeout(() => {
+        if (currentScreen === 'screen-lesson' && currentLessonIndex === index) {
+          playAllActive = true;
+          const btn = document.getElementById('playAllBtn');
+          btn.classList.add('playing');
+          btn.innerHTML = T('stopAll');
+          playParagraphVO(0);
+        }
+      }, 800);
+    }
+
+    // === ACTIVITIES RENDERING ===
+    function renderActivities() {
+      currentLessonIndex = -1;
+      playAllActive = false;
+      document.getElementById('lessonEmoji').textContent = '🎮';
+      document.getElementById('lessonTitle').textContent = T('activitiesTitle');
+      document.getElementById('playAllBtn').style.display = 'none';
+
+      const content = document.getElementById('lessonContent');
+      content.innerHTML = '';
+      const tExercises = T('exercises');
+
+      exerciseMeta.forEach((meta, i) => {
+        const tEx = tExercises[i];
+        const card = document.createElement('div');
+        card.className = 'exercise-card';
+        card.style.borderColor = meta.color + '33';
+        card.style.animationDelay = (i * 0.1) + 's';
+        const stepsHtml = tEx.steps.map((s, si) => `<li data-step="${si + 1}">${s}</li>`).join('');
+        card.innerHTML = `
+          <div class="exercise-header">
+            <div class="exercise-anim ${meta.anim}" style="background:${meta.color}18; border: 2px solid ${meta.color}44">${meta.emoji}</div>
+            <div>
+              <div class="exercise-title" style="color:${meta.color}">${tEx.title}</div>
+              <div class="exercise-difficulty">${meta.difficulty}</div>
+            </div>
+          </div>
+          <div class="exercise-body">
+            <p>${tEx.description}</p>
+            <ol class="exercise-steps">${stepsHtml}</ol>
+            <button class="voiceover-btn" id="vo-btn-${i}" onclick="toggleExerciseVoiceover(${i}, this)">
+              <span class="vo-icon">🔊</span> ${T('listen')}
+            </button>
+            <div class="vo-progress" id="vo-progress-${i}">
+              <div class="vo-progress-fill" id="vo-fill-${i}"></div>
+            </div>
+          </div>
+        `;
+        content.appendChild(card);
+      });
+
+      document.getElementById('lessonFunFact').style.display = 'none';
+      showScreen('screen-lesson');
+      SFX.topicEnter();
+    }
+
+    // === VOICEOVER CONTROLS ===
+    let voProgressInterval = null;
+
+    function clearAllParaBtnStates() {
+      document.querySelectorAll('.vo-para-btn.playing').forEach(b => b.classList.remove('playing'));
+      const fb = document.getElementById('voFactBtn');
+      if (fb) fb.classList.remove('playing');
+    }
+
+    function scrollToEl(el) {
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    function playParagraphVO(paraIndex) {
+      clearAllParaBtnStates();
+      const btn = document.getElementById('vo-para-' + paraIndex);
+      if (btn) { btn.classList.add('playing'); scrollToEl(btn.closest('.lesson-para-row')); }
+
+      Voiceover.playParagraph(currentLessonIndex, paraIndex, () => {
+        if (btn) btn.classList.remove('playing');
+        if (playAllActive) {
+          const tLesson = T('lessons')[currentLessonIndex];
+          const nextPara = paraIndex + 1;
+          if (nextPara < tLesson.paragraphs.length) {
+            setTimeout(() => playParagraphVO(nextPara), 500);
+          } else {
+            setTimeout(() => {
+              playAllActive = false;
+              const playBtn = document.getElementById('playAllBtn');
+              playBtn.classList.remove('playing');
+              playBtn.innerHTML = T('playAll');
+              playFunFactVO();
+            }, 500);
+          }
+        }
+      });
+    }
+
+    function playFunFactVO() {
+      clearAllParaBtnStates();
+      const factEl = document.getElementById('lessonFunFact');
+      document.getElementById('voFactBtn').classList.add('playing');
+      scrollToEl(factEl);
+      Voiceover.playFunFact(currentLessonIndex);
+      const checkEnd = setInterval(() => {
+        if (!Voiceover.isPlaying()) {
+          document.getElementById('voFactBtn').classList.remove('playing');
+          clearInterval(checkEnd);
+        }
+      }, 300);
+    }
+
+    function togglePlayAll() {
+      if (playAllActive) {
+        playAllActive = false;
+        Voiceover.stop();
+        clearAllParaBtnStates();
+        const btn = document.getElementById('playAllBtn');
+        btn.classList.remove('playing');
+        btn.innerHTML = T('playAll');
+        return;
+      }
+      playAllActive = true;
+      const btn = document.getElementById('playAllBtn');
+      btn.classList.add('playing');
+      btn.innerHTML = T('stopAll');
+      playParagraphVO(0);
+    }
+
+    function toggleExerciseVoiceover(index, btn) {
+      SFX.click();
+      if (btn.classList.contains('playing')) { stopExerciseVoiceover(index, btn); return; }
+      document.querySelectorAll('.voiceover-btn.playing').forEach(b => {
+        const idx = parseInt(b.id.replace('vo-btn-', ''));
+        stopExerciseVoiceover(idx, b);
+      });
+      const audio = Voiceover.playExercise(index);
+      if (!audio) return;
+      btn.classList.add('playing');
+      btn.querySelector('.vo-icon').textContent = '⏹';
+      btn.querySelector('.vo-icon').nextSibling.textContent = ' ' + T('stop');
+      const progress = document.getElementById('vo-progress-' + index);
+      const fill = document.getElementById('vo-fill-' + index);
+      progress.classList.add('active');
+      if (voProgressInterval) clearInterval(voProgressInterval);
+      voProgressInterval = setInterval(() => {
+        const cur = Voiceover.getCurrent();
+        if (cur && cur.duration) fill.style.width = (cur.currentTime / cur.duration * 100) + '%';
+      }, 200);
+    }
+
+    function stopExerciseVoiceover(index, btn) {
+      Voiceover.stop();
+      if (voProgressInterval) { clearInterval(voProgressInterval); voProgressInterval = null; }
+      btn.classList.remove('playing');
+      btn.querySelector('.vo-icon').textContent = '🔊';
+      btn.querySelector('.vo-icon').nextSibling.textContent = ' ' + T('listen');
+      const progress = document.getElementById('vo-progress-' + index);
+      const fill = document.getElementById('vo-fill-' + index);
+      if (progress) progress.classList.remove('active');
+      if (fill) fill.style.width = '0%';
+    }
+
+    // === QUIZ ENGINE ===
+    function shuffle(arr) {
+      const a = [...arr];
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    }
+
+    function startQuiz() {
+      quizQuestions = shuffle(T('questions'));
+      currentQuestionIndex = 0;
+      score = 0;
+      answering = false;
+      showScreen('screen-quiz');
+      renderQuestion();
+    }
+
+    function renderQuestion() {
+      const q = quizQuestions[currentQuestionIndex];
+      const total = quizQuestions.length;
+      document.getElementById('quizProgressLabel').textContent = T('questionOf')(currentQuestionIndex + 1, total);
+      document.getElementById('quizProgressFill').style.width = `${((currentQuestionIndex) / total) * 100}%`;
+      document.getElementById('quizQuestion').textContent = q.question;
+      document.getElementById('quizFeedback').style.display = 'none';
+      document.getElementById('quizNextBtn').style.display = 'none';
+      document.getElementById('quizVoBtn').classList.remove('playing');
+      const optionsEl = document.getElementById('quizOptions');
+      optionsEl.innerHTML = '';
+      q.options.forEach((opt, i) => {
+        const btn = document.createElement('button');
+        btn.className = 'quiz-option';
+        btn.textContent = opt;
+        btn.onclick = () => { SFX.click(); checkAnswer(i); };
+        optionsEl.appendChild(btn);
+      });
+      setTimeout(() => { if (currentScreen === 'screen-quiz') playQuizVO(); }, 500);
+    }
+
+    function playQuizVO() {
+      const q = quizQuestions[currentQuestionIndex];
+      const origIndex = T('questions').indexOf(q);
+      if (origIndex >= 0) {
+        const qEl = document.getElementById('quizQuestion');
+        scrollToEl(qEl);
+        document.getElementById('quizVoBtn').classList.add('playing');
+        Voiceover.playQuiz(origIndex);
+        const checkEnd = setInterval(() => {
+          if (!Voiceover.isPlaying()) {
+            document.getElementById('quizVoBtn').classList.remove('playing');
+            clearInterval(checkEnd);
+          }
+        }, 300);
+      }
+    }
+
+    function checkAnswer(selected) {
+      if (answering) return;
+      answering = true;
+      Voiceover.stop();
+      const q = quizQuestions[currentQuestionIndex];
+      const buttons = document.querySelectorAll('.quiz-option');
+      const feedback = document.getElementById('quizFeedback');
+      buttons.forEach(b => b.disabled = true);
+      if (selected === q.correct) {
+        score++;
+        buttons[selected].classList.add('correct');
+        feedback.className = 'quiz-feedback correct';
+        const msgs = T('correctMessages');
+        feedback.textContent = msgs[Math.floor(Math.random() * msgs.length)];
+        SFX.correct();
+      } else {
+        buttons[selected].classList.add('wrong');
+        buttons[q.correct].classList.add('reveal-correct');
+        feedback.className = 'quiz-feedback wrong';
+        feedback.textContent = q.explanation;
+        SFX.wrong();
+      }
+      feedback.style.display = 'flex';
+      document.getElementById('quizNextBtn').style.display = 'inline-block';
+    }
+
+    function advanceQuestion() {
+      document.getElementById('quizNextBtn').style.display = 'none';
+      currentQuestionIndex++;
+      answering = false;
+      if (currentQuestionIndex < quizQuestions.length) renderQuestion();
+      else showResults();
+    }
+
+    function showResults() {
+      const total = quizQuestions.length;
+      let stars;
+      if (score >= 8) stars = 3;
+      else if (score >= 4) stars = 2;
+      else stars = 1;
+      document.getElementById('resultsTitle').textContent = T('resultTitles')[stars];
+      document.getElementById('resultsMessage').textContent = T('resultMessages')[stars];
+      document.getElementById('resultsScore').textContent = T('scoreOf')(score, total);
+      const starEls = document.querySelectorAll('.result-star');
+      starEls.forEach((el, i) => { el.classList.remove('earned'); el.style.animationDelay = `${i * 0.2}s`; });
+      showScreen('screen-results');
+      SFX.fanfare();
+      setTimeout(() => {
+        starEls.forEach((el, i) => {
+          if (i < stars) setTimeout(() => { el.classList.add('earned'); SFX.star(); }, i * 300);
+        });
+      }, 200);
+      document.getElementById('quizProgressFill').style.width = '100%';
+    }
+
+    // === BACKGROUND DECORATION ===
+    function createBgDeco() {
+      const container = document.getElementById('bgDeco');
+      for (let i = 0; i < 20; i++) {
+        const leaf = document.createElement('div');
+        leaf.className = 'bg-leaf';
+        leaf.style.left = Math.random() * 100 + '%';
+        leaf.style.top = Math.random() * 100 + '%';
+        leaf.style.animationDuration = (8 + Math.random() * 12) + 's';
+        leaf.style.animationDelay = Math.random() * 10 + 's';
+        leaf.style.width = (8 + Math.random() * 8) + 'px';
+        leaf.style.height = (5 + Math.random() * 5) + 'px';
+        leaf.style.opacity = 0.1 + Math.random() * 0.15;
+        container.appendChild(leaf);
+      }
+      for (let i = 0; i < 12; i++) {
+        const foot = document.createElement('div');
+        foot.className = 'bg-footprint';
+        foot.textContent = '🦶';
+        foot.style.left = Math.random() * 100 + '%';
+        foot.style.top = Math.random() * 100 + '%';
+        foot.style.setProperty('--rot', (Math.random() * 360) + 'deg');
+        container.appendChild(foot);
+      }
+    }
+
+    // === INIT ===
+    createBgDeco();
+    renderTopics();
+
+    // === PWA SERVICE WORKER ===
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js').catch(() => {});
+    }
+  </script>
+</body>
+</html>

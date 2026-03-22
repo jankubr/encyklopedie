@@ -1,0 +1,2260 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cesta Ninja</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#1a1a2e">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Ninja">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    /* === RESET & BASE === */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg-primary: #1a1a2e;
+      --bg-secondary: #16213e;
+      --bg-card: #1f2b47;
+      --accent-red: #e63946;
+      --accent-gold: #ffd700;
+      --accent-green: #06d6a0;
+      --accent-orange: #f4a261;
+      --text-white: #ffffff;
+      --text-cream: #f0e6d3;
+      --text-muted: #8899bb;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+      color: var(--text-white);
+      min-height: 100vh;
+      overflow-x: hidden;
+      font-size: 20px;
+      line-height: 1.8;
+      letter-spacing: 0.3px;
+      word-spacing: 2px;
+    }
+
+    .container {
+      max-width: 620px;
+      margin: 0 auto;
+      padding: 20px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* === SCREENS === */
+    .screen { display: none; flex-direction: column; align-items: center; animation: fadeIn 0.4s ease; flex: 1; }
+    .screen.active { display: flex; }
+
+    /* === BUTTONS === */
+    .btn {
+      display: inline-block;
+      padding: 16px 36px;
+      border: none;
+      border-radius: 16px;
+      font-size: 20px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      font-family: inherit;
+      text-align: center;
+    }
+    .btn:hover { transform: scale(1.05); }
+    .btn:active { transform: scale(0.97); }
+
+    .btn-red {
+      background: linear-gradient(135deg, var(--accent-red), #c1121f);
+      color: white;
+      box-shadow: 0 4px 20px rgba(230, 57, 70, 0.4);
+    }
+    .btn-gold {
+      background: linear-gradient(135deg, var(--accent-gold), #e6ac00);
+      color: #1a1a2e;
+      box-shadow: 0 4px 20px rgba(255, 215, 0, 0.3);
+    }
+    .btn-back {
+      align-self: flex-start;
+      background: rgba(255,255,255,0.1);
+      color: var(--text-cream);
+      padding: 10px 20px;
+      border-radius: 12px;
+      font-size: 16px;
+      border: none;
+      cursor: pointer;
+      font-family: inherit;
+      font-weight: 600;
+      margin-bottom: 20px;
+      transition: background 0.2s;
+    }
+    .btn-back:hover { background: rgba(255,255,255,0.2); }
+
+    /* === HOME SCREEN === */
+    .home-title {
+      font-size: 42px;
+      font-weight: 800;
+      margin-top: 40px;
+      background: linear-gradient(135deg, var(--accent-red), var(--accent-gold));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .home-subtitle {
+      color: var(--text-muted);
+      font-size: 18px;
+      margin-top: 4px;
+      margin-bottom: 30px;
+    }
+
+    /* CSS Ninja Character */
+    .ninja-character {
+      position: relative;
+      width: 120px;
+      height: 160px;
+      margin: 20px 0 40px;
+      animation: float 3s ease-in-out infinite;
+    }
+    .ninja-head {
+      width: 70px;
+      height: 70px;
+      background: #2d2d2d;
+      border-radius: 50%;
+      margin: 0 auto;
+      position: relative;
+      z-index: 2;
+    }
+    .ninja-eyes {
+      position: absolute;
+      top: 28px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 50px;
+      display: flex;
+      justify-content: space-between;
+    }
+    .ninja-eye {
+      width: 12px;
+      height: 6px;
+      background: #fff;
+      border-radius: 50%;
+      animation: blink 4s infinite;
+    }
+    .ninja-headband {
+      position: absolute;
+      top: 20px;
+      left: -4px;
+      width: 78px;
+      height: 12px;
+      background: var(--accent-red);
+      border-radius: 4px;
+      z-index: 3;
+    }
+    .ninja-headband::after {
+      content: '';
+      position: absolute;
+      right: -16px;
+      top: 2px;
+      width: 20px;
+      height: 8px;
+      background: var(--accent-red);
+      border-radius: 0 4px 4px 0;
+      transform: rotate(15deg);
+    }
+    .ninja-body {
+      width: 60px;
+      height: 70px;
+      background: #2d2d2d;
+      margin: -8px auto 0;
+      border-radius: 8px 8px 20px 20px;
+      position: relative;
+    }
+    .ninja-belt {
+      position: absolute;
+      top: 20px;
+      left: -2px;
+      width: 64px;
+      height: 8px;
+      background: var(--accent-gold);
+      border-radius: 2px;
+    }
+    .ninja-arms {
+      position: absolute;
+      top: 5px;
+      left: -20px;
+      width: 100px;
+      height: 20px;
+    }
+    .ninja-arm {
+      position: absolute;
+      width: 24px;
+      height: 12px;
+      background: #2d2d2d;
+      border-radius: 6px;
+      top: 0;
+    }
+    .ninja-arm.left { left: 0; transform: rotate(-20deg); }
+    .ninja-arm.right { right: 0; transform: rotate(20deg); }
+    .ninja-star {
+      position: absolute;
+      right: -30px;
+      top: -10px;
+      font-size: 24px;
+      animation: spin 3s linear infinite;
+    }
+
+    .home-buttons { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; }
+
+    /* === TOPICS SCREEN === */
+    .topics-title {
+      font-size: 32px;
+      font-weight: 800;
+      margin-bottom: 24px;
+      text-align: center;
+    }
+    .topics-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+      width: 100%;
+    }
+    .topic-card {
+      background: var(--bg-card);
+      border-radius: 20px;
+      padding: 24px 16px;
+      text-align: center;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      border: 2px solid transparent;
+    }
+    .topic-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+    }
+    .topic-card .emoji { font-size: 42px; display: block; margin-bottom: 10px; }
+    .topic-card .title { font-size: 16px; font-weight: 700; color: var(--text-cream); }
+
+    .quiz-vo-btn {
+      background: rgba(255,255,255,0.08);
+      border: 2px solid rgba(255,255,255,0.15);
+      color: var(--text-cream);
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      font-size: 20px;
+      cursor: pointer;
+      margin-bottom: 12px;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .quiz-vo-btn:hover { background: rgba(255,255,255,0.14); }
+    .quiz-vo-btn.playing { background: rgba(231, 76, 60, 0.2); border-color: rgba(231, 76, 60, 0.5); }
+
+    .topic-card:nth-child(1) { border-color: #e63946; }
+    .topic-card:nth-child(2) { border-color: #6c63ff; }
+    .topic-card:nth-child(3) { border-color: #06d6a0; }
+    .topic-card:nth-child(4) { border-color: #f4a261; }
+    .topic-card:nth-child(5) { border-color: #4ecdc4; }
+    .topic-card:nth-child(6) { border-color: #ff6b9d; }
+    .topic-card:nth-child(7) { border-color: #ffd700; }
+
+    /* === LESSON SCREEN === */
+    .lesson-title {
+      font-size: 28px;
+      font-weight: 800;
+      margin-bottom: 8px;
+      text-align: center;
+    }
+    .lesson-emoji {
+      font-size: 48px;
+      margin-bottom: 16px;
+    }
+    .lesson-content {
+      background: rgba(255,255,255,0.05);
+      border-radius: 20px;
+      padding: 28px;
+      width: 100%;
+      margin-bottom: 20px;
+    }
+    .lesson-content p {
+      margin-bottom: 16px;
+      color: var(--text-cream);
+      font-size: 21px;
+      line-height: 2;
+    }
+    .lesson-content p:last-child { margin-bottom: 0; }
+    .lesson-divider {
+      text-align: center;
+      color: var(--accent-red);
+      font-size: 14px;
+      margin: 12px 0;
+      opacity: 0.5;
+    }
+    .lesson-illustration {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      margin: 16px 0;
+    }
+    .lesson-illustration svg {
+      max-width: 480px;
+      width: 100%;
+      height: auto;
+      filter: drop-shadow(0 4px 12px rgba(0,0,0,0.3));
+    }
+    /* Exercise cards */
+    .exercise-card {
+      background: var(--bg-card);
+      border-radius: 20px;
+      padding: 24px;
+      margin-bottom: 20px;
+      width: 100%;
+      border: 2px solid rgba(255,255,255,0.08);
+      animation: fadeIn 0.4s ease;
+    }
+    .exercise-header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+    .exercise-anim {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 36px;
+      flex-shrink: 0;
+    }
+    .exercise-title {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--text-white);
+    }
+    .exercise-difficulty {
+      font-size: 12px;
+      margin-top: 4px;
+      opacity: 0.7;
+    }
+    .exercise-body p {
+      color: var(--text-cream);
+      font-size: 19px;
+      line-height: 1.9;
+      margin-bottom: 10px;
+    }
+    .exercise-steps {
+      list-style: none;
+      padding: 0;
+      margin: 12px 0 0 0;
+    }
+    .exercise-steps li {
+      color: var(--text-cream);
+      font-size: 18px;
+      line-height: 1.8;
+      padding: 6px 0 6px 32px;
+      position: relative;
+    }
+    .exercise-steps li::before {
+      content: attr(data-step);
+      position: absolute;
+      left: 0;
+      top: 6px;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--accent-gold);
+    }
+
+    /* Exercise animations */
+    @keyframes balanceRock {
+      0%, 100% { transform: rotate(-8deg); }
+      50% { transform: rotate(8deg); }
+    }
+    @keyframes sneakMove {
+      0%, 100% { transform: translateX(0); opacity: 1; }
+      40% { transform: translateX(12px); opacity: 0.7; }
+      80% { transform: translateX(24px); opacity: 0.4; }
+    }
+    @keyframes rollSpin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    @keyframes eyeBlink {
+      0%, 80%, 100% { transform: scale(1); }
+      90% { transform: scale(1.3); }
+    }
+    @keyframes statueFade {
+      0%, 85%, 100% { opacity: 1; }
+      90% { opacity: 0.3; }
+      95% { opacity: 1; }
+    }
+    @keyframes throwArc {
+      0% { transform: translate(0, 0) rotate(0deg); }
+      50% { transform: translate(14px, -18px) rotate(180deg); }
+      100% { transform: translate(28px, 0) rotate(360deg); }
+    }
+    @keyframes catStep {
+      0%, 100% { transform: translateY(0); }
+      25% { transform: translateY(-6px); }
+      50% { transform: translateY(0); }
+      75% { transform: translateY(-6px); }
+    }
+
+    /* Voiceover play button */
+    .voiceover-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255,255,255,0.08);
+      border: 2px solid rgba(255,255,255,0.15);
+      color: var(--text-cream);
+      padding: 10px 18px;
+      border-radius: 40px;
+      font-size: 17px;
+      font-family: inherit;
+      cursor: pointer;
+      margin-top: 14px;
+      transition: all 0.2s;
+    }
+    .voiceover-btn:hover {
+      background: rgba(255,255,255,0.14);
+      border-color: rgba(255,255,255,0.25);
+    }
+    .voiceover-btn.playing {
+      background: rgba(231, 76, 60, 0.2);
+      border-color: rgba(231, 76, 60, 0.5);
+      color: #e74c3c;
+    }
+    .voiceover-btn .vo-icon {
+      font-size: 20px;
+      transition: transform 0.2s;
+    }
+    .voiceover-btn.playing .vo-icon {
+      animation: pulse 1s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.2); }
+    }
+    /* Voiceover progress bar */
+    .vo-progress {
+      width: 100%;
+      height: 4px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 2px;
+      margin-top: 8px;
+      overflow: hidden;
+      display: none;
+    }
+    .vo-progress.active { display: block; }
+    .vo-progress-fill {
+      height: 100%;
+      background: var(--accent-gold);
+      border-radius: 2px;
+      width: 0%;
+      transition: width 0.3s linear;
+    }
+
+    .anim-balance { animation: balanceRock 2s ease-in-out infinite; }
+    .anim-sneak { animation: sneakMove 3s ease-in-out infinite; }
+    .anim-roll { animation: rollSpin 2s linear infinite; }
+    .anim-eye { animation: eyeBlink 3s ease-in-out infinite; }
+    .anim-statue { animation: statueFade 5s ease-in-out infinite; }
+    .anim-throw { animation: throwArc 1.5s ease-in-out infinite; }
+    .anim-cat { animation: catStep 1.5s ease-in-out infinite; }
+
+    .lesson-fun-fact {
+      background: rgba(255, 215, 0, 0.1);
+      border-left: 4px solid var(--accent-gold);
+      padding: 16px 20px;
+      border-radius: 0 12px 12px 0;
+      margin-top: 16px;
+      width: 100%;
+    }
+    .lesson-fun-fact .label {
+      font-weight: 700;
+      color: var(--accent-gold);
+      font-size: 14px;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+    .lesson-fun-fact p {
+      color: var(--text-cream);
+      margin: 0;
+    }
+
+    /* === QUIZ SCREEN === */
+    .quiz-header {
+      width: 100%;
+      margin-bottom: 24px;
+    }
+    .quiz-progress-label {
+      font-size: 14px;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+      text-align: center;
+    }
+    .quiz-progress-bar {
+      width: 100%;
+      height: 10px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 5px;
+      overflow: hidden;
+    }
+    .quiz-progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent-red), var(--accent-gold));
+      border-radius: 5px;
+      transition: width 0.5s ease;
+    }
+    .quiz-question {
+      font-size: 26px;
+      font-weight: 700;
+      text-align: center;
+      margin: 20px 0 30px;
+      min-height: 80px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .quiz-options {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .quiz-option {
+      width: 100%;
+      padding: 20px 24px;
+      background: var(--bg-card);
+      border: 2px solid rgba(255,255,255,0.1);
+      border-radius: 16px;
+      color: var(--text-white);
+      font-size: 20px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: inherit;
+      text-align: left;
+    }
+    .quiz-option:hover {
+      border-color: rgba(255,255,255,0.3);
+      background: rgba(255,255,255,0.1);
+    }
+    .quiz-option.correct {
+      background: rgba(6, 214, 160, 0.2);
+      border-color: var(--accent-green);
+      animation: pulse 0.5s;
+    }
+    .quiz-option.wrong {
+      background: rgba(244, 162, 97, 0.2);
+      border-color: var(--accent-orange);
+      animation: shake 0.5s;
+    }
+    .quiz-option.reveal-correct {
+      background: rgba(6, 214, 160, 0.15);
+      border-color: var(--accent-green);
+    }
+    .quiz-option:disabled { cursor: default; }
+
+    .quiz-feedback {
+      margin-top: 20px;
+      padding: 16px 24px;
+      border-radius: 16px;
+      font-size: 20px;
+      font-weight: 700;
+      text-align: center;
+      animation: fadeIn 0.3s;
+      min-height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .quiz-feedback.correct {
+      background: rgba(6, 214, 160, 0.15);
+      color: var(--accent-green);
+    }
+    .quiz-feedback.wrong {
+      background: rgba(244, 162, 97, 0.15);
+      color: var(--accent-orange);
+    }
+    .quiz-next-btn {
+      margin-top: 20px;
+      animation: fadeIn 0.3s;
+    }
+
+    /* === RESULTS SCREEN === */
+    .results-title {
+      font-size: 32px;
+      font-weight: 800;
+      margin-top: 40px;
+      margin-bottom: 10px;
+    }
+    .results-stars {
+      display: flex;
+      gap: 16px;
+      margin: 30px 0;
+    }
+    .result-star {
+      font-size: 56px;
+      opacity: 0.2;
+      transform: scale(0.5);
+      transition: all 0.5s ease;
+    }
+    .result-star.earned {
+      opacity: 1;
+      transform: scale(1);
+      animation: starIn 0.6s ease;
+    }
+    .result-star:nth-child(2).earned { animation-delay: 0.2s; }
+    .result-star:nth-child(3).earned { animation-delay: 0.4s; }
+
+    .results-message {
+      font-size: 20px;
+      color: var(--text-cream);
+      text-align: center;
+      margin-bottom: 16px;
+      max-width: 400px;
+    }
+    .results-score {
+      font-size: 16px;
+      color: var(--text-muted);
+      margin-bottom: 30px;
+    }
+    .results-buttons { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; }
+
+    /* background stars decoration */
+    .bg-stars {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      pointer-events: none;
+      z-index: -1;
+      overflow: hidden;
+    }
+    .bg-star {
+      position: absolute;
+      width: 3px;
+      height: 3px;
+      background: rgba(255,255,255,0.3);
+      border-radius: 50%;
+      animation: twinkle 3s infinite alternate;
+    }
+
+    /* === ANIMATIONS === */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(16px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-12px); }
+    }
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    @keyframes blink {
+      0%, 90%, 100% { transform: scaleY(1); }
+      95% { transform: scaleY(0.1); }
+    }
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.03); }
+    }
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20% { transform: translateX(-8px); }
+      40% { transform: translateX(8px); }
+      60% { transform: translateX(-6px); }
+      80% { transform: translateX(6px); }
+    }
+    @keyframes starIn {
+      0% { transform: scale(0) rotate(-180deg); opacity: 0; }
+      60% { transform: scale(1.3) rotate(10deg); opacity: 1; }
+      100% { transform: scale(1) rotate(0deg); opacity: 1; }
+    }
+    @keyframes twinkle {
+      0% { opacity: 0.2; }
+      100% { opacity: 0.8; }
+    }
+
+    /* === RESPONSIVE === */
+    @media (max-width: 480px) {
+      .home-title { font-size: 32px; }
+      .topics-title { font-size: 26px; }
+      .quiz-question { font-size: 20px; }
+      .btn { padding: 14px 28px; font-size: 18px; }
+      .topic-card { padding: 18px 12px; }
+      .topic-card .emoji { font-size: 34px; }
+      .lesson-content { padding: 20px; }
+    }
+    @media (min-width: 500px) {
+      .topics-grid { grid-template-columns: repeat(3, 1fr); }
+    }
+    /* === LANGUAGE SWITCHER === */
+    .lang-switcher {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+    .lang-btn {
+      background: rgba(255,255,255,0.06);
+      border: 2px solid rgba(255,255,255,0.1);
+      color: var(--text-cream);
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 15px;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .lang-btn:hover {
+      background: rgba(255,255,255,0.12);
+    }
+    .lang-btn.active {
+      background: rgba(255, 215, 0, 0.15);
+      border-color: var(--accent-gold);
+      color: var(--accent-gold);
+      font-weight: 700;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Background stars -->
+  <div class="bg-stars" id="bgStars"></div>
+
+  <div class="container">
+
+    <!-- SCREEN: HOME -->
+    <div id="screen-home" class="screen active">
+      <div class="lang-switcher" id="langSwitcher">
+        <button class="lang-btn active" onclick="setLang('cs')">🇨🇿 Čeština</button>
+        <button class="lang-btn" onclick="setLang('pt')">🇵🇹 Português</button>
+        <button class="lang-btn" onclick="setLang('es')">🇪🇸 Español</button>
+      </div>
+      <h1 class="home-title" id="homeTitle">Cesta Ninja</h1>
+      <p class="home-subtitle" id="homeSubtitle">Staň se mistrem ninjutsu!</p>
+
+      <div class="ninja-character">
+        <div class="ninja-head">
+          <div class="ninja-headband"></div>
+          <div class="ninja-eyes">
+            <div class="ninja-eye"></div>
+            <div class="ninja-eye"></div>
+          </div>
+        </div>
+        <div class="ninja-body">
+          <div class="ninja-belt"></div>
+          <div class="ninja-arms">
+            <div class="ninja-arm left"></div>
+            <div class="ninja-arm right"></div>
+          </div>
+          <span class="ninja-star">&#x2726;</span>
+        </div>
+      </div>
+
+      <div class="home-buttons">
+        <button class="btn btn-red" id="btnLearn" onclick="SFX.click(); showScreen('screen-topics')">Chci objevovat!</button>
+        <button class="btn btn-gold" id="btnQuiz" onclick="SFX.click(); startQuiz()">Kvíz</button>
+      </div>
+    </div>
+
+    <!-- SCREEN: TOPICS -->
+    <div id="screen-topics" class="screen">
+      <button class="btn-back" id="btnBackTopics" onclick="SFX.click(); showScreen('screen-home')">&#x2190; Zpět</button>
+      <h2 class="topics-title" id="topicsTitle">Ninja škola</h2>
+      <div class="topics-grid" id="topicsGrid"></div>
+    </div>
+
+    <!-- SCREEN: LESSON -->
+    <div id="screen-lesson" class="screen">
+      <button class="btn-back" id="btnBackLesson" onclick="SFX.click(); showScreen('screen-topics')">&#x2190; Zpět</button>
+      <span class="lesson-emoji" id="lessonEmoji"></span>
+      <h2 class="lesson-title" id="lessonTitle"></h2>
+      <div class="lesson-content" id="lessonContent"></div>
+      <div class="lesson-fun-fact" id="lessonFunFact">
+        <div class="label" id="funFactLabel">Věděl(a) jsi?</div>
+        <p id="funFactText"></p>
+      </div>
+    </div>
+
+    <!-- SCREEN: QUIZ -->
+    <div id="screen-quiz" class="screen">
+      <button class="btn-back" id="btnBackQuiz" onclick="SFX.click(); showScreen('screen-home')">&#x2190; Domů</button>
+      <div class="quiz-header">
+        <div class="quiz-progress-label" id="quizProgressLabel"></div>
+        <div class="quiz-progress-bar">
+          <div class="quiz-progress-fill" id="quizProgressFill"></div>
+        </div>
+      </div>
+      <button class="quiz-vo-btn" id="quizVoBtn" onclick="playQuizVO()">🔊</button>
+      <div class="quiz-question" id="quizQuestion"></div>
+      <div class="quiz-options" id="quizOptions"></div>
+      <div class="quiz-feedback" id="quizFeedback" style="display:none"></div>
+      <button class="btn btn-gold quiz-next-btn" id="quizNextBtn" style="display:none" onclick="SFX.click(); advanceQuestion()">Další otázka →</button>
+    </div>
+
+    <!-- SCREEN: RESULTS -->
+    <div id="screen-results" class="screen">
+      <h2 class="results-title" id="resultsTitle"></h2>
+      <div class="results-stars" id="resultsStars">
+        <span class="result-star">&#x2B50;</span>
+        <span class="result-star">&#x2B50;</span>
+        <span class="result-star">&#x2B50;</span>
+      </div>
+      <p class="results-message" id="resultsMessage"></p>
+      <p class="results-score" id="resultsScore"></p>
+      <div class="results-buttons">
+        <button class="btn btn-gold" id="btnRetry" onclick="SFX.click(); startQuiz()">Zkusit znovu</button>
+        <button class="btn btn-red" id="btnResultsHome" onclick="SFX.click(); showScreen('screen-home')">Domů</button>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    // === SOUND ENGINE (Web Audio API) ===
+    const SFX = (() => {
+      let ctx;
+      function getCtx() {
+        if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)();
+        return ctx;
+      }
+      function resumeCtx() {
+        if (ctx && ctx.state === 'suspended') ctx.resume();
+      }
+      // Utility: play a sequence of tones
+      function playTones(tones, type = 'sine') {
+        const c = getCtx();
+        const master = c.createGain();
+        master.gain.value = 0.18;
+        master.connect(c.destination);
+        let t = c.currentTime;
+        tones.forEach(([freq, dur]) => {
+          const osc = c.createOscillator();
+          const env = c.createGain();
+          osc.type = type;
+          osc.frequency.value = freq;
+          env.gain.setValueAtTime(0.5, t);
+          env.gain.exponentialRampToValueAtTime(0.01, t + dur);
+          osc.connect(env);
+          env.connect(master);
+          osc.start(t);
+          osc.stop(t + dur);
+          t += dur * 0.7;
+        });
+      }
+      return {
+        // Short click/tap
+        click() {
+          resumeCtx();
+          playTones([[880, 0.06], [1100, 0.05]], 'sine');
+        },
+        // Screen transition swoosh
+        swoosh() {
+          resumeCtx();
+          const c = getCtx();
+          const osc = c.createOscillator();
+          const gain = c.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(200, c.currentTime);
+          osc.frequency.exponentialRampToValueAtTime(600, c.currentTime + 0.15);
+          gain.gain.setValueAtTime(0.12, c.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, c.currentTime + 0.2);
+          osc.connect(gain);
+          gain.connect(c.destination);
+          osc.start();
+          osc.stop(c.currentTime + 0.2);
+        },
+        // Correct answer — happy ascending melody
+        correct() {
+          resumeCtx();
+          playTones([[523, 0.12], [659, 0.12], [784, 0.12], [1047, 0.2]], 'sine');
+        },
+        // Wrong answer — low descending buzz
+        wrong() {
+          resumeCtx();
+          playTones([[330, 0.2], [220, 0.3]], 'square');
+        },
+        // Quiz complete fanfare
+        fanfare() {
+          resumeCtx();
+          playTones([[523, 0.15], [659, 0.15], [784, 0.15], [1047, 0.12], [784, 0.1], [1047, 0.35]], 'sine');
+        },
+        // Star earned
+        star() {
+          resumeCtx();
+          playTones([[1200, 0.08], [1500, 0.08], [1800, 0.15]], 'sine');
+        }
+      };
+    })();
+
+    // Resume AudioContext on first user interaction
+    document.addEventListener('click', () => {
+      if (typeof SFX !== 'undefined') SFX.click;
+      const c = SFX && window.AudioContext ? null : null;
+    }, { once: true });
+
+    // === VOICEOVER PLAYER ===
+    const Voiceover = (() => {
+      let currentAudio = null;
+      let onEndCallback = null;
+      let lang = 'cs';
+      const exerciseFileNames = [
+        'exercise-0-plamenak.mp3',
+        'exercise-1-tichy-presun.mp3',
+        'exercise-2-ninja-kotouly.mp3',
+        'exercise-3-ninja-pamet.mp3',
+        'exercise-4-socha.mp3',
+        'exercise-5-hod-na-cil.mp3',
+        'exercise-6-kocici-krok.mp3'
+      ];
+      const cache = {};
+
+      function getPath(filename) {
+        return lang === 'cs' ? `audio/${filename}` : `audio/${lang}/${filename}`;
+      }
+
+      function getAudio(filename) {
+        const p = getPath(filename);
+        if (!cache[p]) cache[p] = new Audio(p);
+        return cache[p];
+      }
+
+      function playFile(filename, onEnd) {
+        Voiceover.stop();
+        currentAudio = getAudio(filename);
+        currentAudio.currentTime = 0;
+        onEndCallback = onEnd || null;
+        currentAudio.onended = () => {
+          const cb = onEndCallback;
+          currentAudio = null;
+          onEndCallback = null;
+          if (cb) cb();
+        };
+        currentAudio.play().catch(() => {});
+        return currentAudio;
+      }
+
+      const Voiceover = {
+        setLang(l) { lang = l; },
+        play(exerciseIndex) {
+          if (exerciseIndex < 0 || exerciseIndex >= exerciseFileNames.length) return;
+          return playFile(exerciseFileNames[exerciseIndex]);
+        },
+        playTopic(index, onEnd) { return playFile(`topic-${index}.mp3`, onEnd); },
+        playQuiz(questionIndex) { return playFile(`quiz-q${questionIndex}.mp3`); },
+        playReadMore() { return playFile('read-more.mp3'); },
+        stop() {
+          if (currentAudio) {
+            currentAudio.pause();
+            currentAudio.currentTime = 0;
+            currentAudio.onended = null;
+            currentAudio = null;
+            onEndCallback = null;
+          }
+        },
+        isPlaying() { return currentAudio && !currentAudio.paused; },
+        getCurrent() { return currentAudio; }
+      };
+      return Voiceover;
+    })();
+
+    // === I18N SYSTEM ===
+    let currentLang = 'cs';
+
+    const i18n = {
+      cs: {
+        // UI strings
+        homeTitle: 'Cesta Ninja',
+        homeSubtitle: 'Staň se mistrem ninjutsu!',
+        btnLearn: 'Chci objevovat!',
+        btnQuiz: 'Kvíz',
+        backBtn: '← Zpět',
+        homeBtn: '← Domů',
+        topicsTitle: 'Ninja škola',
+        funFactLabel: 'Věděl(a) jsi?',
+        nextQuestion: 'Další otázka →',
+        btnRetry: 'Zkusit znovu',
+        btnHome: 'Domů',
+        questionOf: (n, t) => `Otázka ${n} z ${t}`,
+        scoreOf: (s, t) => `Správně ${s} z ${t}`,
+        listen: 'Poslechnout',
+        stop: 'Zastavit',
+        readMore: 'Přečti si více!',
+        correctMessages: [
+          'Správně! Jsi skvělý ninja!',
+          'Výborně! To sedí!',
+          'Přesně tak! Ninja by byl hrdý!',
+          'Super! Máš to v malíčku!',
+          'Ano! Tvé znalosti rostou!'
+        ],
+        resultTitles: { 1: 'Ninja žák', 2: 'Ninja učeň', 3: 'Ninja mistr!' },
+        resultMessages: {
+          1: 'Dobrý začátek! Přečti si lekce a zkus to znovu — příště to bude ještě lepší!',
+          2: 'Skvělá práce! Víš toho o ninjích už hodně. Ještě trochu a budeš mistr!',
+          3: 'Úžasné! Znáš ninja tajemství jako opravdový šinobi! Sensei by byl pyšný!'
+        },
+        difficulties: { beginner: '⭐ Začátečník', intermediate: '⭐⭐ Pokročilý', master: '⭐⭐⭐ Mistr' },
+        // Lessons
+        lessons: [
+          {
+            title: 'Kdo byli ninjové?',
+            paragraphs: [
+              'Ninjové byli tajní agenti ve starém Japonsku. Žili před mnoha stovkami let a jejich úkolem bylo získávat tajné informace a chránit své pány.',
+              'Na rozdíl od samurajů, kteří bojovali otevřeně, ninjové pracovali ve skrytu. Uměli se plížit, přestrojit a zmizet jako stíny.',
+              'Ninjové pocházeli většinou z horských vesnic, kde se celé rodiny učily tajné dovednosti. Děti začínaly s tréninkem už ve velmi mladém věku — asi jako ty!'
+            ],
+            funFact: 'Správný název pro ninja je „šinobi". Slovo ninja se začalo používat až mnohem později!'
+          },
+          {
+            title: 'Ninja oblečení',
+            paragraphs: [
+              'Ninjové nosili speciální oblek zvaný „šinobi šózoku". Byl tmavý, aby je v noci nebylo vidět. Ale pozor — nebyl černý! Většinou byl tmavě modrý.',
+              'Proč modrý? Protože čistě černá barva v noci vlastně vyniká. Tmavě modrá splývá s noční oblohou mnohem lépe.',
+              'Na hlavě měli masku zvanou „zukin", která zakrývala obličej. Oblečení bylo volné, aby se v něm mohli snadno pohybovat, lézt a skákat.'
+            ],
+            funFact: 'Ninjové se často přestrojovali za obyčejné lidi — za obchodníky, mnichy nebo farmáře. Nejlepší převlek byl ten, kdy si jich nikdo nevšiml!'
+          },
+          {
+            title: 'Ninja nástroje',
+            paragraphs: [
+              'Ninjové používali spoustu chytrých nástrojů. Nejznámější je „šuriken" — kovová hvězdice, kterou házeli na cíl. Ale nebyla to hlavní zbraň, spíš sloužila k odvedení pozornosti.',
+              '„Kunai" vypadá jako malá dýka, ale ninjové ho používali hlavně jako nástroj — na kopání, páčení a lezení. Byl to takový ninja švýcarský nůž!',
+              'Ninjové měli i kouřové bomby, aby mohli rychle zmizet, lana s háky na lezení po zdech a speciální boty s měkkou podrážkou pro tichý pohyb.'
+            ],
+            funFact: 'Ninjové nosili nástroje na tajných místech v oblečení. Někdy měli dutou hůl, ve které schovávali zprávy nebo jedovatý prášek!'
+          },
+          {
+            title: 'Ninja dovednosti',
+            paragraphs: [
+              'Ninjové museli umět úplně všechno! Plížení a tichý pohyb byly základem. Trénovali chůzi tak tiše, že je neslyšel ani pes.',
+              'Uměli skvěle lézt — po zdech, stromech i skalách. Museli být rychlí plavci a dokázali dlouho zadržet dech pod vodou.',
+              'Nejdůležitější dovedností ale byla chytrost. Ninjové měli skvělou paměť, uměli číst mapy, znali přírodu a dokázali se přestrojit za kohokoliv.'
+            ],
+            funFact: 'Ninjové trénovali paměť pomocí speciálních her. Podívali se na skupinu předmětů, pak zavřeli oči a museli si vzpomenout na každý z nich!'
+          },
+          {
+            title: 'Ninja trénink',
+            paragraphs: [
+              'Ninja trénink začínal už v dětství. Malí ninjové cvičili rovnováhu na kládě, běhali přes překážky a učili se padat bez zranění.',
+              'Důležitý byl tichý běh — běžet rychle a přitom nedělat žádný hluk. Zkus to doma! Zjistíš, že to vůbec není jednoduché.',
+              'Ninjové se také hodně učili o přírodě. Poznávali rostliny, předpovídali počasí podle mraků a sledovali zvířata. Příroda byla jejich nejlepší učitelka.'
+            ],
+            funFact: 'Malí ninjové prý skákali přes rostoucí rostlinu konopí. Jak rostlina rostla každý den výš, oni skákali stále výše — a ani si toho nevšimli!'
+          },
+          {
+            title: 'Slavní ninjové',
+            paragraphs: [
+              'Hattori Hanzó byl jeden z nejslavnějších ninjů. Sloužil jako ochránce budoucího vládce Japonska a proslavil se svou odvahou a bojovým uměním.',
+              'Věděl(a) jsi, že existovaly i ženy ninjové? Říkalo se jim „kunoiči". Močizuki Čijomé byla slavná ninja velitelka, která trénovala celou skupinu dívek v umění špionáže.',
+              'Nejznámější ninja klany byly Iga a Kóga z hornatých oblastí Japonska. Tyto rodiny si předávaly tajné znalosti z generace na generaci.'
+            ],
+            funFact: 'Klan Iga byl tak tajemný, že když je nepřátelé napadli, celá vesnice zmizela v horách jako duchové — i s rodinami a zvířaty!'
+          },
+          {
+            title: 'Ninja trénink na doma',
+            funFact: 'Můžeš si vytvořit vlastní ninja tréninkový plán! Zkus každý den jedno cvičení a zapiš si, jak se zlepšuješ. Za měsíc budeš jako opravdový šinobi!'
+          }
+        ],
+        // Exercises for lesson 6
+        exercises: [
+          { title: 'Plameňák', description: 'Opravdoví ninjové dokázali stát na jedné noze celé minuty na úzkém okraji střechy. Zkus to taky!', steps: ['Postav se rovně a zvedni jednu nohu do vzduchu.', 'Roztáhni ruce do stran — pomůže ti to udržet rovnováhu.', 'Zkus vydržet 10 sekund. Zvládneš to se zavřenýma očima?', 'Pak vyměň nohu a zkus znovu. Která noha je lepší?'] },
+          { title: 'Tichý přesun', description: 'Ninjové trénovali tichý pohyb každý den. Museli projít kolem stráží a nesměli vydat ani hlásku.', steps: ['Sundej si boty — jdi naboso nebo v ponožkách.', 'Našlápni nejdřív na špičku a pak pomalu polož celé chodidlo.', 'Zkus přejít celý pokoj tak, aby tě nikdo neslyšel.', 'Požádej někoho, ať zavře oči a zkusí poznat, kde jsi. Uslyší tě?'] },
+          { title: 'Ninja kotouly', description: 'Ninjové se uměli kutálet, aby se vyhnuli útokům a rychle vstali na nohy. Kotoul je základ ninja obratnosti!', steps: ['Najdi měkkou podložku nebo koberec.', 'Dřepni si, dej bradu na hrudník a ruce před sebe.', 'Pomalu se převal dopředu přes záda.', 'Zkus vstát rovnou na nohy! Ninja vždy skončí připravený.'] },
+          { title: 'Ninja paměť', description: 'Ninjové museli mít fotografickou paměť. Podívali se na mapu jen jednou a zapamatovali si každý detail.', steps: ['Polož na stůl 10 různých věcí (tužka, lžíce, kostka...).', 'Dívej se na ně přesně 30 sekund — snaž se zapamatovat všechno.', 'Přikryj je ručníkem a řekni nahlas, co tam bylo.', 'Kolik jsi jich dal? 7 a víc = ninja paměť! Příště přidej víc věcí.'] },
+          { title: 'Socha', description: 'Ninjové museli být úplně nehybní, když se schovali ve tmě a čekali na správný okamžik. Někdy i celé hodiny!', steps: ['Postav se nebo sedni do pohodlné pozice.', 'Nastav si minutu na hodinkách nebo požádej někoho, aby měřil.', 'Nehýbej se! Ani mrknutí, ani škrábání, ani úsměv.', 'Je to těžší, než vypadá! Zkus příště 2 minuty.'] },
+          { title: 'Hod na cíl', description: 'Takhle ninjové trénovali přesnost se šurikeny! Ty použiješ ponožky — je to bezpečnější a stejně zábavné.', steps: ['Polož na zem talíř, noviny nebo list papíru — to je tvůj cíl.', 'Sroluj ponožku do kuličky.', 'Postav se 2 metry daleko a hoď!', 'Trefil ses? Zkus 3 metry! A pak se otoč zády a hoď přes rameno.'] },
+          { title: 'Kočičí krok', description: 'Ninjové trénovali přesné kroky, aby v noci nešlápli na větev nebo skřípající prkno. Kočky jsou v tomhle mistři!', steps: ['Rozlož po chodbě papíry nebo boty v řadě za sebou.', 'Šlapej přesně jen na ně — nesmíš se dotknout podlahy!', 'Jdi tam a zpátky. Spadl jsi? Začni znovu!', 'Pro ninja mistry: zkus to po tmě nebo se zavřenýma očima!'] }
+        ],
+        // Quiz
+        questions: [
+          { question: 'Jak se správně říká ninjům?', options: ['Samurajové', 'Šinobi', 'Bušidó'], correct: 1, explanation: 'Správný název je „šinobi". Slovo ninja přišlo až později.' },
+          { question: 'Jakou barvu mělo ninja oblečení?', options: ['Černou', 'Bílou', 'Tmavě modrou'], correct: 2, explanation: 'Tmavě modrá splývá s noční oblohou lépe než černá!' },
+          { question: 'K čemu hlavně sloužil kunai?', options: ['K vaření', 'Jako univerzální nástroj', 'Jako hračka'], correct: 1, explanation: 'Kunai byl hlavně nástroj — na kopání, páčení a lezení.' },
+          { question: 'Jak se jmenovala slavná žena ninja?', options: ['Sakura', 'Močizuki Čijomé', 'Hanako'], correct: 1, explanation: 'Močizuki Čijomé vedla skupinu dívek — ninjů zvaných kunoiči.' },
+          { question: 'Co používali ninjové, aby rychle zmizeli?', options: ['Kouřové bomby', 'Kouzla', 'Létající koberec'], correct: 0, explanation: 'Kouřové bomby vytvořily mrak kouře, ve kterém ninja zmizel!' },
+          { question: 'Jak se jmenoval slavný ninja, který chránil budoucího vládce Japonska?', options: ['Hattori Hanzó', 'Marco Polo', 'Iga Tanaka'], correct: 0, explanation: 'Hattori Hanzó byl jeden z nejslavnějších ninjů v historii.' },
+          { question: 'Jak se říkalo masce, kterou ninja nosil na hlavě?', options: ['Kabuto', 'Zukin', 'Kasa'], correct: 1, explanation: 'Zukin zakrýval obličej ninja, aby ho nikdo nepoznal.' },
+          { question: 'Co trénovali ninjové od dětství?', options: ['Vaření sushi', 'Rovnováhu a tichý běh', 'Hraní na flétnu'], correct: 1, explanation: 'Ninja děti cvičily rovnováhu, tichý běh a skákání přes překážky.' },
+          { question: 'Které dva nejznámější ninja klany znáš?', options: ['Iga a Kóga', 'Tokio a Ósaka', 'Sakura a Fudži'], correct: 0, explanation: 'Klany Iga a Kóga byly z hornatých oblastí a tajně si předávaly znalosti.' },
+          { question: 'Proč se ninjové učili o přírodě?', options: ['Protože neměli televizi', 'Příroda jim pomáhala při misích', 'Chtěli být zahradníky'], correct: 1, explanation: 'Znalost přírody pomáhala ninjům předpovídat počasí, orientovat se a najít jídlo.' }
+        ]
+      },
+
+      pt: {
+        homeTitle: 'Caminho Ninja',
+        homeSubtitle: 'Torna-te um mestre de ninjutsu!',
+        btnLearn: 'Quero descobrir!',
+        btnQuiz: 'Quiz',
+        backBtn: '← Voltar',
+        homeBtn: '← Início',
+        topicsTitle: 'Escola Ninja',
+        funFactLabel: 'Sabias que?',
+        nextQuestion: 'Próxima pergunta →',
+        btnRetry: 'Tentar de novo',
+        btnHome: 'Início',
+        questionOf: (n, t) => `Pergunta ${n} de ${t}`,
+        scoreOf: (s, t) => `Corretas ${s} de ${t}`,
+        listen: 'Ouvir',
+        stop: 'Parar',
+        readMore: 'Lê mais!',
+        correctMessages: [
+          'Correto! És um ninja incrível!',
+          'Muito bem! Acertaste!',
+          'Exatamente! Um ninja ficaria orgulhoso!',
+          'Fantástico! Sabes mesmo disto!',
+          'Sim! Os teus conhecimentos estão a crescer!'
+        ],
+        resultTitles: { 1: 'Aluno Ninja', 2: 'Aprendiz Ninja', 3: 'Mestre Ninja!' },
+        resultMessages: {
+          1: 'Bom começo! Lê as lições e tenta de novo — da próxima vez vai ser ainda melhor!',
+          2: 'Ótimo trabalho! Já sabes muito sobre ninjas. Mais um pouco e serás um mestre!',
+          3: 'Incrível! Conheces os segredos ninja como um verdadeiro shinobi! O sensei ficaria orgulhoso!'
+        },
+        difficulties: { beginner: '⭐ Principiante', intermediate: '⭐⭐ Intermédio', master: '⭐⭐⭐ Mestre' },
+        lessons: [
+          {
+            title: 'Quem eram os ninjas?',
+            paragraphs: [
+              'Os ninjas eram agentes secretos no Japão antigo. Viveram há muitas centenas de anos e a sua missão era obter informações secretas e proteger os seus senhores.',
+              'Ao contrário dos samurais, que lutavam abertamente, os ninjas trabalhavam nas sombras. Sabiam rastejar, disfarçar-se e desaparecer como sombras.',
+              'Os ninjas vinham principalmente de aldeias nas montanhas, onde famílias inteiras aprendiam habilidades secretas. As crianças começavam a treinar muito novas — mais ou menos como tu!'
+            ],
+            funFact: 'O nome correto para ninja é "shinobi". A palavra ninja só começou a ser usada muito mais tarde!'
+          },
+          {
+            title: 'Roupa ninja',
+            paragraphs: [
+              'Os ninjas usavam um fato especial chamado "shinobi shozoku". Era escuro para não serem vistos à noite. Mas atenção — não era preto! Na maioria das vezes era azul-escuro.',
+              'Porquê azul? Porque o preto puro destaca-se à noite. O azul-escuro mistura-se muito melhor com o céu noturno.',
+              'Na cabeça tinham uma máscara chamada "zukin" que cobria o rosto. A roupa era larga para se poderem mover facilmente, trepar e saltar.'
+            ],
+            funFact: 'Os ninjas disfarçavam-se frequentemente de pessoas comuns — comerciantes, monges ou agricultores. O melhor disfarce era aquele em que ninguém reparava neles!'
+          },
+          {
+            title: 'Ferramentas ninja',
+            paragraphs: [
+              'Os ninjas usavam muitas ferramentas engenhosas. A mais famosa é o "shuriken" — uma estrela de metal que atiravam ao alvo. Mas não era a arma principal, servia mais para distrair.',
+              'O "kunai" parece uma pequena adaga, mas os ninjas usavam-no principalmente como ferramenta — para cavar, fazer alavanca e escalar. Era o canivete suíço ninja!',
+              'Os ninjas também tinham bombas de fumo para desaparecer rapidamente, cordas com ganchos para escalar paredes e sapatos especiais com sola macia para andar em silêncio.'
+            ],
+            funFact: 'Os ninjas escondiam ferramentas em locais secretos na roupa. Às vezes tinham um bastão oco onde escondiam mensagens ou pó venenoso!'
+          },
+          {
+            title: 'Habilidades ninja',
+            paragraphs: [
+              'Os ninjas tinham de saber fazer de tudo! Rastejar e mover-se em silêncio era o básico. Treinavam caminhar tão silenciosamente que nem um cão os ouvia.',
+              'Sabiam escalar muito bem — paredes, árvores e rochas. Tinham de ser nadadores rápidos e conseguiam suster a respiração debaixo de água durante muito tempo.',
+              'Mas a habilidade mais importante era a inteligência. Os ninjas tinham uma memória excelente, sabiam ler mapas, conheciam a natureza e conseguiam disfarçar-se de qualquer pessoa.'
+            ],
+            funFact: 'Os ninjas treinavam a memória com jogos especiais. Olhavam para um grupo de objetos, fechavam os olhos e tinham de se lembrar de cada um deles!'
+          },
+          {
+            title: 'Treino ninja',
+            paragraphs: [
+              'O treino ninja começava na infância. Os pequenos ninjas praticavam equilíbrio numa trave, corriam por entre obstáculos e aprendiam a cair sem se magoarem.',
+              'A corrida silenciosa era muito importante — correr depressa sem fazer barulho nenhum. Experimenta em casa! Vais ver que não é nada fácil.',
+              'Os ninjas também aprendiam muito sobre a natureza. Conheciam plantas, previam o tempo pelas nuvens e observavam os animais. A natureza era a sua melhor professora.'
+            ],
+            funFact: 'Dizem que os pequenos ninjas saltavam por cima de uma planta de cânhamo em crescimento. Como a planta crescia todos os dias, eles saltavam cada vez mais alto — sem se aperceberem!'
+          },
+          {
+            title: 'Ninjas famosos',
+            paragraphs: [
+              'Hattori Hanzō foi um dos ninjas mais famosos. Serviu como protetor do futuro governante do Japão e ficou conhecido pela sua coragem e habilidade de combate.',
+              'Sabias que também existiam mulheres ninja? Chamavam-se "kunoichi". Mochizuki Chiyome era uma famosa comandante ninja que treinou um grupo inteiro de raparigas na arte da espionagem.',
+              'Os clãs ninja mais famosos eram os de Iga e Kōga, das regiões montanhosas do Japão. Estas famílias passavam conhecimentos secretos de geração em geração.'
+            ],
+            funFact: 'O clã Iga era tão misterioso que quando os inimigos atacavam, toda a aldeia desaparecia nas montanhas como fantasmas — incluindo famílias e animais!'
+          },
+          {
+            title: 'Treino ninja em casa',
+            funFact: 'Podes criar o teu próprio plano de treino ninja! Experimenta um exercício por dia e anota os teus progressos. Num mês vais ser como um verdadeiro shinobi!'
+          }
+        ],
+        exercises: [
+          { title: 'Flamingo', description: 'Os verdadeiros ninjas conseguiam ficar numa perna só durante minutos inteiros na borda de um telhado. Experimenta tu também!', steps: ['Fica de pé, direito, e levanta uma perna no ar.', 'Abre os braços para os lados — ajuda a manter o equilíbrio.', 'Tenta aguentar 10 segundos. Consegues de olhos fechados?', 'Depois troca de perna e tenta de novo. Qual é a melhor perna?'] },
+          { title: 'Deslocação silenciosa', description: 'Os ninjas treinavam o movimento silencioso todos os dias. Tinham de passar pelos guardas sem fazer um único som.', steps: ['Tira os sapatos — anda descalço ou de meias.', 'Pisa primeiro com a ponta do pé e depois pousa lentamente todo o pé.', 'Tenta atravessar a sala toda sem que ninguém te oiça.', 'Pede a alguém para fechar os olhos e adivinhar onde estás. Consegue ouvir-te?'] },
+          { title: 'Cambalhotas ninja', description: 'Os ninjas sabiam rebolar para se esquivarem de ataques e levantarem-se rapidamente. A cambalhota é a base da agilidade ninja!', steps: ['Encontra um tapete ou colchão macio.', 'Agacha-te, encosta o queixo ao peito e põe as mãos à frente.', 'Rola lentamente para a frente sobre as costas.', 'Tenta levantar-te logo de pé! Um ninja acaba sempre preparado.'] },
+          { title: 'Memória ninja', description: 'Os ninjas precisavam de ter memória fotográfica. Olhavam para um mapa uma única vez e memorizavam cada detalhe.', steps: ['Põe 10 objetos diferentes numa mesa (lápis, colher, dado...).', 'Olha para eles durante exatamente 30 segundos — tenta memorizar tudo.', 'Cobre-os com uma toalha e diz em voz alta o que estava lá.', 'Quantos acertaste? 7 ou mais = memória ninja! Da próxima vez, acrescenta mais.'] },
+          { title: 'Estátua', description: 'Os ninjas tinham de ficar completamente imóveis quando se escondiam na escuridão à espera do momento certo. Às vezes durante horas!', steps: ['Fica de pé ou senta-te numa posição confortável.', 'Define um minuto no relógio ou pede a alguém para cronometrar.', 'Não te mexas! Nem pestanejar, nem coçar, nem sorrir.', 'É mais difícil do que parece! Da próxima vez, tenta 2 minutos.'] },
+          { title: 'Lançamento ao alvo', description: 'Era assim que os ninjas treinavam a pontaria com shurikens! Tu vais usar meias — é mais seguro e igualmente divertido.', steps: ['Põe um prato, jornal ou folha de papel no chão — é o teu alvo.', 'Enrola uma meia numa bola.', 'Fica a 2 metros de distância e lança!', 'Acertaste? Tenta a 3 metros! E depois vira-te de costas e lança por cima do ombro.'] },
+          { title: 'Passo de gato', description: 'Os ninjas treinavam passos precisos para não pisarem um ramo ou uma tábua que rangesse à noite. Os gatos são mestres nisso!', steps: ['Espalha papéis ou sapatos em fila pelo corredor.', 'Pisa exatamente só neles — não podes tocar no chão!', 'Vai e volta. Caíste? Recomeça!', 'Para mestres ninja: tenta no escuro ou de olhos fechados!'] }
+        ],
+        questions: [
+          { question: 'Qual é o nome correto dos ninjas?', options: ['Samurais', 'Shinobi', 'Bushidō'], correct: 1, explanation: 'O nome correto é "shinobi". A palavra ninja surgiu muito mais tarde.' },
+          { question: 'De que cor era a roupa ninja?', options: ['Preta', 'Branca', 'Azul-escuro'], correct: 2, explanation: 'O azul-escuro mistura-se melhor com o céu noturno do que o preto!' },
+          { question: 'Para que servia principalmente o kunai?', options: ['Para cozinhar', 'Como ferramenta universal', 'Como brinquedo'], correct: 1, explanation: 'O kunai era principalmente uma ferramenta — para cavar, fazer alavanca e escalar.' },
+          { question: 'Como se chamava a famosa mulher ninja?', options: ['Sakura', 'Mochizuki Chiyome', 'Hanako'], correct: 1, explanation: 'Mochizuki Chiyome liderava um grupo de raparigas ninja chamadas kunoichi.' },
+          { question: 'O que usavam os ninjas para desaparecer rapidamente?', options: ['Bombas de fumo', 'Magia', 'Tapete voador'], correct: 0, explanation: 'As bombas de fumo criavam uma nuvem de fumo onde o ninja desaparecia!' },
+          { question: 'Como se chamava o ninja famoso que protegia o futuro governante do Japão?', options: ['Hattori Hanzō', 'Marco Polo', 'Iga Tanaka'], correct: 0, explanation: 'Hattori Hanzō foi um dos ninjas mais famosos da história.' },
+          { question: 'Como se chamava a máscara que o ninja usava na cabeça?', options: ['Kabuto', 'Zukin', 'Kasa'], correct: 1, explanation: 'O zukin cobria o rosto do ninja para que ninguém o reconhecesse.' },
+          { question: 'O que treinavam os ninjas desde a infância?', options: ['Fazer sushi', 'Equilíbrio e corrida silenciosa', 'Tocar flauta'], correct: 1, explanation: 'As crianças ninja treinavam equilíbrio, corrida silenciosa e saltos com obstáculos.' },
+          { question: 'Quais são os dois clãs ninja mais famosos?', options: ['Iga e Kōga', 'Tóquio e Osaka', 'Sakura e Fuji'], correct: 0, explanation: 'Os clãs Iga e Kōga eram de regiões montanhosas e passavam conhecimentos em segredo.' },
+          { question: 'Porque é que os ninjas aprendiam sobre a natureza?', options: ['Porque não tinham televisão', 'A natureza ajudava-os nas missões', 'Queriam ser jardineiros'], correct: 1, explanation: 'O conhecimento da natureza ajudava os ninjas a prever o tempo, orientar-se e encontrar comida.' }
+        ]
+      },
+
+      es: {
+        homeTitle: 'Camino Ninja',
+        homeSubtitle: '¡Conviértete en un maestro del ninjutsu!',
+        btnLearn: '¡Quiero descubrir!',
+        btnQuiz: 'Quiz',
+        backBtn: '← Volver',
+        homeBtn: '← Inicio',
+        topicsTitle: 'Escuela Ninja',
+        funFactLabel: '¿Sabías que?',
+        nextQuestion: 'Siguiente pregunta →',
+        btnRetry: 'Intentar de nuevo',
+        btnHome: 'Inicio',
+        questionOf: (n, t) => `Pregunta ${n} de ${t}`,
+        scoreOf: (s, t) => `Correctas ${s} de ${t}`,
+        listen: 'Escuchar',
+        stop: 'Parar',
+        readMore: '¡Lee más!',
+        correctMessages: [
+          '¡Correcto! ¡Eres un ninja increíble!',
+          '¡Muy bien! ¡Has acertado!',
+          '¡Exacto! ¡Un ninja estaría orgulloso!',
+          '¡Fantástico! ¡Sabes mucho de esto!',
+          '¡Sí! ¡Tus conocimientos están creciendo!'
+        ],
+        resultTitles: { 1: 'Alumno Ninja', 2: 'Aprendiz Ninja', 3: '¡Maestro Ninja!' },
+        resultMessages: {
+          1: '¡Buen comienzo! Lee las lecciones e inténtalo de nuevo — ¡la próxima vez será aún mejor!',
+          2: '¡Gran trabajo! Ya sabes mucho sobre ninjas. ¡Un poco más y serás un maestro!',
+          3: '¡Increíble! ¡Conoces los secretos ninja como un verdadero shinobi! ¡El sensei estaría orgulloso!'
+        },
+        difficulties: { beginner: '⭐ Principiante', intermediate: '⭐⭐ Intermedio', master: '⭐⭐⭐ Maestro' },
+        lessons: [
+          {
+            title: '¿Quiénes eran los ninjas?',
+            paragraphs: [
+              'Los ninjas eran agentes secretos en el antiguo Japón. Vivieron hace muchos cientos de años y su misión era obtener información secreta y proteger a sus señores.',
+              'A diferencia de los samuráis, que luchaban abiertamente, los ninjas trabajaban en las sombras. Sabían arrastrarse, disfrazarse y desaparecer como sombras.',
+              'Los ninjas procedían principalmente de aldeas de montaña, donde familias enteras aprendían habilidades secretas. Los niños empezaban a entrenar desde muy pequeños — ¡más o menos como tú!'
+            ],
+            funFact: 'El nombre correcto para ninja es "shinobi". ¡La palabra ninja empezó a usarse mucho más tarde!'
+          },
+          {
+            title: 'Ropa ninja',
+            paragraphs: [
+              'Los ninjas llevaban un traje especial llamado "shinobi shozoku". Era oscuro para que no los vieran de noche. Pero ¡atención! — ¡no era negro! La mayoría de las veces era azul oscuro.',
+              '¿Por qué azul? Porque el negro puro destaca por la noche. El azul oscuro se mezcla mucho mejor con el cielo nocturno.',
+              'En la cabeza llevaban una máscara llamada "zukin" que cubría el rostro. La ropa era holgada para que pudieran moverse con facilidad, trepar y saltar.'
+            ],
+            funFact: 'Los ninjas se disfrazaban frecuentemente de personas normales — comerciantes, monjes o granjeros. ¡El mejor disfraz era aquel en el que nadie se fijaba en ellos!'
+          },
+          {
+            title: 'Herramientas ninja',
+            paragraphs: [
+              'Los ninjas usaban muchas herramientas ingeniosas. La más famosa es el "shuriken" — una estrella de metal que lanzaban al objetivo. Pero no era su arma principal, servía más para distraer.',
+              'El "kunai" parece una pequeña daga, pero los ninjas lo usaban principalmente como herramienta — para cavar, hacer palanca y escalar. ¡Era la navaja suiza ninja!',
+              'Los ninjas también tenían bombas de humo para desaparecer rápidamente, cuerdas con ganchos para escalar paredes y zapatos especiales con suela blanda para caminar en silencio.'
+            ],
+            funFact: 'Los ninjas escondían herramientas en lugares secretos de su ropa. ¡A veces tenían un bastón hueco donde ocultaban mensajes o polvo venenoso!'
+          },
+          {
+            title: 'Habilidades ninja',
+            paragraphs: [
+              '¡Los ninjas tenían que saber hacerlo todo! Arrastrarse y moverse en silencio era lo básico. Entrenaban caminar tan silenciosamente que ni un perro los oía.',
+              'Sabían escalar muy bien — paredes, árboles y rocas. Tenían que ser nadadores rápidos y podían aguantar la respiración bajo el agua durante mucho tiempo.',
+              'Pero la habilidad más importante era la inteligencia. Los ninjas tenían una memoria excelente, sabían leer mapas, conocían la naturaleza y podían disfrazarse de cualquier persona.'
+            ],
+            funFact: 'Los ninjas entrenaban la memoria con juegos especiales. Miraban un grupo de objetos, cerraban los ojos y tenían que recordar cada uno de ellos.'
+          },
+          {
+            title: 'Entrenamiento ninja',
+            paragraphs: [
+              'El entrenamiento ninja empezaba en la infancia. Los pequeños ninjas practicaban equilibrio en una viga, corrían entre obstáculos y aprendían a caer sin hacerse daño.',
+              'La carrera silenciosa era muy importante — correr rápido sin hacer ningún ruido. ¡Pruébalo en casa! Verás que no es nada fácil.',
+              'Los ninjas también aprendían mucho sobre la naturaleza. Conocían las plantas, predecían el tiempo por las nubes y observaban los animales. La naturaleza era su mejor maestra.'
+            ],
+            funFact: 'Dicen que los pequeños ninjas saltaban por encima de una planta de cáñamo en crecimiento. Como la planta crecía cada día, ¡ellos saltaban cada vez más alto sin darse cuenta!'
+          },
+          {
+            title: 'Ninjas famosos',
+            paragraphs: [
+              'Hattori Hanzō fue uno de los ninjas más famosos. Sirvió como protector del futuro gobernante de Japón y se hizo conocido por su valentía y habilidad de combate.',
+              '¿Sabías que también existían mujeres ninja? Se llamaban "kunoichi". Mochizuki Chiyome era una famosa comandante ninja que entrenó a un grupo entero de chicas en el arte del espionaje.',
+              'Los clanes ninja más famosos eran Iga y Kōga de las regiones montañosas de Japón. Estas familias transmitían conocimientos secretos de generación en generación.'
+            ],
+            funFact: '¡El clan Iga era tan misterioso que cuando los enemigos atacaban, toda la aldea desaparecía en las montañas como fantasmas — incluidas familias y animales!'
+          },
+          {
+            title: 'Entrenamiento ninja en casa',
+            funFact: '¡Puedes crear tu propio plan de entrenamiento ninja! Prueba un ejercicio cada día y anota tus progresos. ¡En un mes serás como un verdadero shinobi!'
+          }
+        ],
+        exercises: [
+          { title: 'Flamenco', description: '¡Los verdaderos ninjas podían estar en una pierna durante minutos enteros en el borde de un tejado. Inténtalo tú también!', steps: ['Ponte de pie recto y levanta una pierna en el aire.', 'Extiende los brazos a los lados — te ayudará a mantener el equilibrio.', '¿Puedes aguantar 10 segundos? ¿Y con los ojos cerrados?', 'Después cambia de pierna e inténtalo de nuevo. ¿Cuál es mejor?'] },
+          { title: 'Desplazamiento silencioso', description: 'Los ninjas entrenaban el movimiento silencioso todos los días. Tenían que pasar junto a los guardias sin hacer ni un sonido.', steps: ['Quítate los zapatos — camina descalzo o con calcetines.', 'Pisa primero con la punta del pie y luego apoya lentamente todo el pie.', 'Intenta cruzar toda la habitación sin que nadie te oiga.', 'Pide a alguien que cierre los ojos y adivine dónde estás. ¿Te oye?'] },
+          { title: 'Volteretas ninja', description: '¡Los ninjas sabían rodar para esquivar ataques y ponerse de pie rápidamente. La voltereta es la base de la agilidad ninja!', steps: ['Busca una colchoneta o alfombra suave.', 'Agáchate, pega la barbilla al pecho y pon las manos delante.', 'Rueda lentamente hacia delante sobre la espalda.', '¡Intenta ponerte de pie de un salto! Un ninja siempre termina preparado.'] },
+          { title: 'Memoria ninja', description: 'Los ninjas necesitaban memoria fotográfica. Miraban un mapa una sola vez y memorizaban cada detalle.', steps: ['Pon 10 objetos diferentes en una mesa (lápiz, cuchara, dado...).', 'Míralos durante exactamente 30 segundos — intenta memorizar todo.', 'Cúbrelos con una toalla y di en voz alta lo que había.', '¿Cuántos acertaste? 7 o más = ¡memoria ninja! La próxima vez, añade más.'] },
+          { title: 'Estatua', description: '¡Los ninjas tenían que quedarse completamente inmóviles cuando se escondían en la oscuridad esperando el momento justo. ¡A veces durante horas!', steps: ['Ponte de pie o siéntate en una posición cómoda.', 'Pon un minuto en el reloj o pide a alguien que cronometre.', '¡No te muevas! Ni pestañear, ni rascarte, ni sonreír.', '¡Es más difícil de lo que parece! La próxima vez, intenta 2 minutos.'] },
+          { title: 'Lanzamiento al blanco', description: '¡Así entrenaban los ninjas la puntería con shurikens! Tú usarás calcetines — ¡es más seguro e igual de divertido!', steps: ['Pon un plato, periódico o papel en el suelo — es tu objetivo.', 'Enrolla un calcetín en forma de bola.', '¡Ponte a 2 metros y lanza!', '¿Acertaste? ¡Prueba a 3 metros! Y después date la vuelta y lanza por encima del hombro.'] },
+          { title: 'Paso de gato', description: '¡Los ninjas entrenaban pasos precisos para no pisar una rama o una tabla que crujiera por la noche. Los gatos son maestros en esto!', steps: ['Reparte papeles o zapatos en fila por el pasillo.', '¡Pisa exactamente solo en ellos — no puedes tocar el suelo!', 'Ve y vuelve. ¿Te caíste? ¡Empieza de nuevo!', 'Para maestros ninja: ¡inténtalo a oscuras o con los ojos cerrados!'] }
+        ],
+        questions: [
+          { question: '¿Cuál es el nombre correcto de los ninjas?', options: ['Samuráis', 'Shinobi', 'Bushidō'], correct: 1, explanation: 'El nombre correcto es "shinobi". La palabra ninja llegó mucho más tarde.' },
+          { question: '¿De qué color era la ropa ninja?', options: ['Negra', 'Blanca', 'Azul oscuro'], correct: 2, explanation: '¡El azul oscuro se mezcla mejor con el cielo nocturno que el negro!' },
+          { question: '¿Para qué servía principalmente el kunai?', options: ['Para cocinar', 'Como herramienta universal', 'Como juguete'], correct: 1, explanation: 'El kunai era principalmente una herramienta — para cavar, hacer palanca y escalar.' },
+          { question: '¿Cómo se llamaba la famosa mujer ninja?', options: ['Sakura', 'Mochizuki Chiyome', 'Hanako'], correct: 1, explanation: 'Mochizuki Chiyome lideraba un grupo de chicas ninja llamadas kunoichi.' },
+          { question: '¿Qué usaban los ninjas para desaparecer rápidamente?', options: ['Bombas de humo', 'Magia', 'Alfombra voladora'], correct: 0, explanation: '¡Las bombas de humo creaban una nube de humo donde el ninja desaparecía!' },
+          { question: '¿Cómo se llamaba el ninja famoso que protegía al futuro gobernante de Japón?', options: ['Hattori Hanzō', 'Marco Polo', 'Iga Tanaka'], correct: 0, explanation: 'Hattori Hanzō fue uno de los ninjas más famosos de la historia.' },
+          { question: '¿Cómo se llamaba la máscara que el ninja llevaba en la cabeza?', options: ['Kabuto', 'Zukin', 'Kasa'], correct: 1, explanation: 'El zukin cubría el rostro del ninja para que nadie lo reconociera.' },
+          { question: '¿Qué entrenaban los ninjas desde la infancia?', options: ['Hacer sushi', 'Equilibrio y carrera silenciosa', 'Tocar la flauta'], correct: 1, explanation: 'Los niños ninja entrenaban equilibrio, carrera silenciosa y saltos con obstáculos.' },
+          { question: '¿Cuáles son los dos clanes ninja más famosos?', options: ['Iga y Kōga', 'Tokio y Osaka', 'Sakura y Fuji'], correct: 0, explanation: 'Los clanes Iga y Kōga eran de regiones montañosas y transmitían conocimientos en secreto.' },
+          { question: '¿Por qué los ninjas aprendían sobre la naturaleza?', options: ['Porque no tenían televisión', 'La naturaleza les ayudaba en las misiones', 'Querían ser jardineros'], correct: 1, explanation: 'El conocimiento de la naturaleza ayudaba a los ninjas a predecir el tiempo, orientarse y encontrar comida.' }
+        ]
+      }
+    };
+
+    function T(key) { return i18n[currentLang][key]; }
+
+    function setLang(lang) {
+      currentLang = lang;
+      document.documentElement.lang = lang;
+      // Update lang switcher
+      document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+      document.querySelector(`.lang-btn[onclick*="'${lang}'"]`).classList.add('active');
+      // Update static UI
+      document.getElementById('homeTitle').textContent = T('homeTitle');
+      document.getElementById('homeSubtitle').textContent = T('homeSubtitle');
+      document.getElementById('btnLearn').textContent = T('btnLearn');
+      document.getElementById('btnQuiz').textContent = T('btnQuiz');
+      document.getElementById('btnBackTopics').innerHTML = T('backBtn');
+      document.getElementById('topicsTitle').textContent = T('topicsTitle');
+      document.getElementById('btnBackLesson').innerHTML = T('backBtn');
+      document.getElementById('funFactLabel').textContent = T('funFactLabel');
+      document.getElementById('btnBackQuiz').innerHTML = T('homeBtn');
+      document.getElementById('quizNextBtn').textContent = T('nextQuestion');
+      document.getElementById('btnRetry').textContent = T('btnRetry');
+      document.getElementById('btnResultsHome').textContent = T('btnHome');
+      document.title = T('homeTitle');
+      // Re-render topics with translated titles
+      renderTopics();
+      // Update voiceover paths
+      Voiceover.setLang(lang);
+      SFX.click();
+    }
+
+    // === DATA: Lessons ===
+    // SVG illustrations for lessons
+    const illustrations = {
+      // Lesson 0: Ninja silhouette with moon and mountains
+      0: [
+        `<svg viewBox="0 0 280 180" xmlns="http://www.w3.org/2000/svg">
+          <rect width="280" height="180" rx="16" fill="#0f1629"/>
+          <circle cx="220" cy="50" r="35" fill="#ffd700" opacity="0.9"/>
+          <polygon points="0,180 50,110 90,140 140,90 180,120 220,80 280,100 280,180" fill="#1a2744"/>
+          <polygon points="0,180 40,130 80,155 130,110 170,140 210,105 280,120 280,180" fill="#243256"/>
+          <g transform="translate(100,55)">
+            <circle cx="20" cy="15" r="14" fill="#2d2d2d"/>
+            <rect x="0" y="10" width="40" height="6" rx="3" fill="#e63946"/>
+            <rect x="6" y="28" width="28" height="35" rx="6" fill="#2d2d2d"/>
+            <rect x="15" y="17" width="3" height="2" rx="1" fill="#fff"/>
+            <rect x="22" y="17" width="3" height="2" rx="1" fill="#fff"/>
+          </g>
+          <text x="140" y="170" text-anchor="middle" fill="#8899bb" font-size="11" font-family="Inter,sans-serif">Tajní agenti starého Japonska</text>
+        </svg>`,
+        `<svg viewBox="0 0 280 140" xmlns="http://www.w3.org/2000/svg">
+          <rect width="280" height="140" rx="16" fill="#1a2240"/>
+          <g transform="translate(40,25)">
+            <circle cx="30" cy="20" r="16" fill="#2d2d2d"/>
+            <rect x="10" y="14" width="40" height="7" rx="3" fill="#e63946"/>
+            <rect x="16" y="38" width="28" height="30" rx="5" fill="#2d2d2d"/>
+            <rect x="23" y="22" width="3" height="2" rx="1" fill="#fff"/>
+            <rect x="30" y="22" width="3" height="2" rx="1" fill="#fff"/>
+            <text x="30" y="90" text-anchor="middle" fill="#e63946" font-size="10" font-family="Inter,sans-serif">Ninja</text>
+          </g>
+          <text x="140" y="75" text-anchor="middle" fill="#8899bb" font-size="18">VS</text>
+          <g transform="translate(170,25)">
+            <circle cx="30" cy="20" r="16" fill="#4a3728"/>
+            <rect x="10" y="0" width="40" height="10" rx="2" fill="#c9a84c"/>
+            <rect x="16" y="38" width="28" height="30" rx="5" fill="#4a3728"/>
+            <rect x="23" y="22" width="3" height="2" rx="1" fill="#fff"/>
+            <rect x="30" y="22" width="3" height="2" rx="1" fill="#fff"/>
+            <line x1="48" y1="50" x2="72" y2="30" stroke="#aaa" stroke-width="2"/>
+            <text x="30" y="90" text-anchor="middle" fill="#c9a84c" font-size="10" font-family="Inter,sans-serif">Samuraj</text>
+          </g>
+        </svg>`
+      ],
+      // Lesson 1: Ninja clothing
+      1: [
+        `<svg viewBox="0 0 280 180" xmlns="http://www.w3.org/2000/svg">
+          <rect width="280" height="180" rx="16" fill="#0f1629"/>
+          <circle cx="60" cy="40" r="4" fill="#fff" opacity="0.3"/>
+          <circle cx="200" cy="30" r="3" fill="#fff" opacity="0.2"/>
+          <circle cx="250" cy="60" r="2" fill="#fff" opacity="0.4"/>
+          <g transform="translate(90,15)">
+            <circle cx="50" cy="30" r="26" fill="#1a3a5c"/>
+            <rect x="18" y="22" width="64" height="12" rx="4" fill="#1a3a5c"/>
+            <rect x="18" y="22" width="64" height="12" rx="4" fill="#e63946" opacity="0.9"/>
+            <rect x="32" y="30" width="5" height="3" rx="1.5" fill="#fff"/>
+            <rect x="42" y="30" width="5" height="3" rx="1.5" fill="#fff"/>
+            <rect x="30" y="58" width="40" height="55" rx="8" fill="#1a3a5c"/>
+            <rect x="28" y="75" width="44" height="8" rx="2" fill="#16213e"/>
+            <rect x="18" y="65" width="16" height="8" rx="4" fill="#1a3a5c" transform="rotate(-15 26 69)"/>
+            <rect x="66" y="65" width="16" height="8" rx="4" fill="#1a3a5c" transform="rotate(15 74 69)"/>
+            <rect x="35" y="113" width="12" height="20" rx="4" fill="#1a3a5c"/>
+            <rect x="53" y="113" width="12" height="20" rx="4" fill="#1a3a5c"/>
+          </g>
+          <rect x="20" y="155" width="80" height="16" rx="8" fill="#1a3a5c"/>
+          <text x="60" y="167" text-anchor="middle" fill="#fff" font-size="8" font-family="Inter,sans-serif">tmavě modrá</text>
+          <rect x="120" y="155" width="60" height="16" rx="8" fill="#111"/>
+          <text x="150" y="167" text-anchor="middle" fill="#fff" font-size="8" font-family="Inter,sans-serif">černá</text>
+          <text x="188" y="167" fill="#06d6a0" font-size="14">✓</text>
+          <text x="228" y="167" fill="#e63946" font-size="14">✗</text>
+        </svg>`,
+        `<svg viewBox="0 0 280 120" xmlns="http://www.w3.org/2000/svg">
+          <rect width="280" height="120" rx="16" fill="#1a2240"/>
+          <g transform="translate(30,15)">
+            <circle cx="40" cy="30" r="22" fill="#1a3a5c"/>
+            <rect x="14" y="22" width="52" height="10" rx="4" fill="#1a3a5c"/>
+            <rect x="28" y="28" width="4" height="3" rx="1" fill="#fff"/>
+            <rect x="38" y="28" width="4" height="3" rx="1" fill="#fff"/>
+            <text x="40" y="80" text-anchor="middle" fill="#8899bb" font-size="10" font-family="Inter,sans-serif">Zukin (maska)</text>
+          </g>
+          <g transform="translate(150,25)">
+            <rect x="10" y="10" width="60" height="50" rx="6" fill="#1a3a5c" opacity="0.7"/>
+            <path d="M20,35 Q40,15 60,35" stroke="#8899bb" stroke-width="1.5" fill="none" stroke-dasharray="3,3"/>
+            <text x="40" y="80" text-anchor="middle" fill="#8899bb" font-size="10" font-family="Inter,sans-serif">Volné oblečení</text>
+          </g>
+        </svg>`
+      ],
+      // Lesson 2: Ninja tools
+      2: [
+        `<svg viewBox="0 0 280 160" xmlns="http://www.w3.org/2000/svg">
+          <rect width="280" height="160" rx="16" fill="#1a2240"/>
+          <g transform="translate(40,20)">
+            <polygon points="25,0 30,20 50,25 30,30 25,50 20,30 0,25 20,20" fill="#aaa" stroke="#888" stroke-width="1"/>
+            <circle cx="25" cy="25" r="4" fill="#1a2240"/>
+            <text x="25" y="70" text-anchor="middle" fill="#ffd700" font-size="11" font-family="Inter,sans-serif">Šuriken</text>
+          </g>
+          <g transform="translate(120,15)">
+            <rect x="18" y="5" width="4" height="40" rx="1" fill="#aaa"/>
+            <polygon points="10,5 20,0 30,5 20,10" fill="#bbb"/>
+            <rect x="14" y="42" width="12" height="15" rx="1" fill="#8B4513"/>
+            <circle cx="20" cy="50" r="1" fill="#1a2240"/>
+            <text x="20" y="75" text-anchor="middle" fill="#ffd700" font-size="11" font-family="Inter,sans-serif">Kunai</text>
+          </g>
+          <g transform="translate(200,20)">
+            <circle cx="25" cy="20" r="18" fill="rgba(150,150,150,0.3)" stroke="#aaa" stroke-width="1" stroke-dasharray="4,2"/>
+            <circle cx="25" cy="20" r="4" fill="#aaa"/>
+            <text x="25" y="58" text-anchor="middle" fill="#ffd700" font-size="11" font-family="Inter,sans-serif">Kouřová bomba</text>
+          </g>
+          <g transform="translate(60,95)">
+            <line x1="0" y1="20" x2="160" y2="20" stroke="#8B6914" stroke-width="3"/>
+            <path d="M155,10 L170,0 L160,20" stroke="#aaa" stroke-width="2" fill="none"/>
+            <text x="80" y="45" text-anchor="middle" fill="#ffd700" font-size="11" font-family="Inter,sans-serif">Lano s hákem</text>
+          </g>
+        </svg>`,
+        `<svg viewBox="0 0 280 100" xmlns="http://www.w3.org/2000/svg">
+          <rect width="280" height="100" rx="16" fill="#0f1629"/>
+          <g transform="translate(40,20)">
+            <ellipse cx="25" cy="30" rx="25" ry="18" fill="rgba(100,100,100,0.3)"/>
+            <ellipse cx="25" cy="30" rx="8" ry="5" fill="rgba(150,150,150,0.4)"/>
+            <text x="25" y="65" text-anchor="middle" fill="#8899bb" font-size="9" font-family="Inter,sans-serif">Tichá podrážka</text>
+          </g>
+          <g transform="translate(130,10)">
+            <rect x="5" y="5" width="30" height="55" rx="3" fill="#8B4513" opacity="0.7"/>
+            <line x1="20" y1="5" x2="20" y2="60" stroke="#6B3410" stroke-width="1"/>
+            <circle cx="20" cy="30" r="3" fill="rgba(255,255,255,0.2)"/>
+            <text x="20" y="78" text-anchor="middle" fill="#8899bb" font-size="9" font-family="Inter,sans-serif">Dutá hůl</text>
+          </g>
+          <g transform="translate(210,15)">
+            <polygon points="20,0 24,15 40,18 24,22 20,40 16,22 0,18 16,15" fill="#aaa" stroke="#888" stroke-width="0.5" transform="scale(0.7)"/>
+            <polygon points="20,0 24,15 40,18 24,22 20,40 16,22 0,18 16,15" fill="#aaa" stroke="#888" stroke-width="0.5" transform="translate(25,20) scale(0.5) rotate(20)"/>
+            <text x="20" y="65" text-anchor="middle" fill="#8899bb" font-size="9" font-family="Inter,sans-serif">Odvedení pozornosti</text>
+          </g>
+        </svg>`
+      ],
+      // Lesson 3: Ninja skills
+      3: [
+        `<svg viewBox="0 0 280 160" xmlns="http://www.w3.org/2000/svg">
+          <rect width="280" height="160" rx="16" fill="#0f1629"/>
+          <rect x="200" y="40" width="40" height="100" rx="4" fill="#3a3a3a"/>
+          <rect x="203" y="45" width="34" height="10" rx="2" fill="#4a4a4a"/>
+          <rect x="203" y="60" width="34" height="10" rx="2" fill="#4a4a4a"/>
+          <rect x="203" y="75" width="34" height="10" rx="2" fill="#4a4a4a"/>
+          <g transform="translate(180,30)">
+            <circle cx="12" cy="8" r="8" fill="#2d2d2d"/>
+            <rect x="0" y="4" width="24" height="5" rx="2" fill="#e63946"/>
+            <rect x="5" y="9" width="2" height="1.5" rx="0.5" fill="#fff"/>
+            <rect x="11" y="9" width="2" height="1.5" rx="0.5" fill="#fff"/>
+            <rect x="4" y="17" width="16" height="18" rx="4" fill="#2d2d2d"/>
+            <line x1="4" y1="28" x2="-2" y2="40" stroke="#2d2d2d" stroke-width="4" stroke-linecap="round"/>
+            <line x1="20" y1="25" x2="26" y2="18" stroke="#2d2d2d" stroke-width="4" stroke-linecap="round"/>
+          </g>
+          <g transform="translate(20,30)">
+            <circle cx="50" cy="50" r="40" fill="none" stroke="#06d6a0" stroke-width="1" opacity="0.3"/>
+            <text x="50" y="45" text-anchor="middle" fill="#06d6a0" font-size="28">🤫</text>
+            <text x="50" y="75" text-anchor="middle" fill="#06d6a0" font-size="10" font-family="Inter,sans-serif">Plížení</text>
+          </g>
+          <text x="140" y="150" text-anchor="middle" fill="#8899bb" font-size="10" font-family="Inter,sans-serif">Lezení po zdech a tichý pohyb</text>
+        </svg>`,
+        `<svg viewBox="0 0 280 120" xmlns="http://www.w3.org/2000/svg">
+          <rect width="280" height="120" rx="16" fill="#1a2240"/>
+          <g transform="translate(15,15)">
+            <circle cx="35" cy="35" r="30" fill="rgba(6,214,160,0.1)" stroke="#06d6a0" stroke-width="1"/>
+            <text x="35" y="42" text-anchor="middle" font-size="28">🧠</text>
+            <text x="35" y="80" text-anchor="middle" fill="#06d6a0" font-size="9" font-family="Inter,sans-serif">Paměť</text>
+          </g>
+          <g transform="translate(100,15)">
+            <circle cx="35" cy="35" r="30" fill="rgba(255,215,0,0.1)" stroke="#ffd700" stroke-width="1"/>
+            <text x="35" y="42" text-anchor="middle" font-size="28">🗺️</text>
+            <text x="35" y="80" text-anchor="middle" fill="#ffd700" font-size="9" font-family="Inter,sans-serif">Mapy</text>
+          </g>
+          <g transform="translate(185,15)">
+            <circle cx="35" cy="35" r="30" fill="rgba(230,57,70,0.1)" stroke="#e63946" stroke-width="1"/>
+            <text x="35" y="42" text-anchor="middle" font-size="28">🎭</text>
+            <text x="35" y="80" text-anchor="middle" fill="#e63946" font-size="9" font-family="Inter,sans-serif">Přestrojení</text>
+          </g>
+        </svg>`
+      ],
+      // Lesson 4: Ninja training
+      4: [
+        `<svg viewBox="0 0 280 160" xmlns="http://www.w3.org/2000/svg">
+          <rect width="280" height="160" rx="16" fill="#0f1629"/>
+          <rect x="40" y="100" width="200" height="8" rx="2" fill="#8B4513"/>
+          <rect x="30" y="108" width="10" height="30" fill="#6B3410"/>
+          <rect x="240" y="108" width="10" height="30" fill="#6B3410"/>
+          <g transform="translate(120,50)">
+            <circle cx="15" cy="8" r="10" fill="#2d2d2d"/>
+            <rect x="3" y="3" width="24" height="5" rx="2" fill="#e63946"/>
+            <rect x="8" y="10" width="2.5" height="1.5" rx="0.5" fill="#fff"/>
+            <rect x="14" y="10" width="2.5" height="1.5" rx="0.5" fill="#fff"/>
+            <rect x="5" y="19" width="20" height="22" rx="5" fill="#2d2d2d"/>
+            <line x1="3" y1="30" x2="-6" y2="22" stroke="#2d2d2d" stroke-width="4" stroke-linecap="round"/>
+            <line x1="27" y1="30" x2="36" y2="22" stroke="#2d2d2d" stroke-width="4" stroke-linecap="round"/>
+            <line x1="10" y1="41" x2="8" y2="53" stroke="#2d2d2d" stroke-width="4" stroke-linecap="round"/>
+            <line x1="20" y1="41" x2="22" y2="53" stroke="#2d2d2d" stroke-width="4" stroke-linecap="round"/>
+          </g>
+          <text x="140" y="152" text-anchor="middle" fill="#ffd700" font-size="11" font-family="Inter,sans-serif">Rovnováha na kládě</text>
+        </svg>`,
+        `<svg viewBox="0 0 280 130" xmlns="http://www.w3.org/2000/svg">
+          <rect width="280" height="130" rx="16" fill="#1a2240"/>
+          <g transform="translate(15,10)">
+            <circle cx="35" cy="40" r="32" fill="rgba(76,205,196,0.1)" stroke="#4ecdc4" stroke-width="1"/>
+            <text x="35" y="47" text-anchor="middle" font-size="30">🌿</text>
+            <text x="35" y="88" text-anchor="middle" fill="#4ecdc4" font-size="9" font-family="Inter,sans-serif">Rostliny</text>
+          </g>
+          <g transform="translate(100,10)">
+            <circle cx="35" cy="40" r="32" fill="rgba(255,215,0,0.1)" stroke="#ffd700" stroke-width="1"/>
+            <text x="35" y="47" text-anchor="middle" font-size="30">⛅</text>
+            <text x="35" y="88" text-anchor="middle" fill="#ffd700" font-size="9" font-family="Inter,sans-serif">Počasí</text>
+          </g>
+          <g transform="translate(185,10)">
+            <circle cx="35" cy="40" r="32" fill="rgba(244,162,97,0.1)" stroke="#f4a261" stroke-width="1"/>
+            <text x="35" y="47" text-anchor="middle" font-size="30">🦊</text>
+            <text x="35" y="88" text-anchor="middle" fill="#f4a261" font-size="9" font-family="Inter,sans-serif">Zvířata</text>
+          </g>
+        </svg>`
+      ],
+      // Lesson 5: Famous ninjas
+      5: [
+        `<svg viewBox="0 0 280 160" xmlns="http://www.w3.org/2000/svg">
+          <rect width="280" height="160" rx="16" fill="#0f1629"/>
+          <g transform="translate(25,15)">
+            <circle cx="35" cy="25" r="20" fill="#2d2d2d"/>
+            <rect x="10" y="18" width="50" height="8" rx="3" fill="#e63946"/>
+            <rect x="24" y="26" width="4" height="2.5" rx="1" fill="#fff"/>
+            <rect x="33" y="26" width="4" height="2.5" rx="1" fill="#fff"/>
+            <rect x="20" y="46" width="30" height="35" rx="6" fill="#2d2d2d"/>
+            <rect x="48" y="50" width="25" height="3" rx="1" fill="#aaa"/>
+            <text x="35" y="100" text-anchor="middle" fill="#ffd700" font-size="10" font-weight="bold" font-family="Inter,sans-serif">Hattori Hanzó</text>
+            <text x="35" y="115" text-anchor="middle" fill="#8899bb" font-size="8" font-family="Inter,sans-serif">Slavný ochránce</text>
+          </g>
+          <g transform="translate(155,15)">
+            <circle cx="35" cy="25" r="20" fill="#2d2d2d"/>
+            <rect x="10" y="18" width="50" height="8" rx="3" fill="#ff6b9d"/>
+            <rect x="24" y="26" width="4" height="2.5" rx="1" fill="#fff"/>
+            <rect x="33" y="26" width="4" height="2.5" rx="1" fill="#fff"/>
+            <rect x="20" y="46" width="30" height="35" rx="6" fill="#2d2d2d"/>
+            <text x="35" y="100" text-anchor="middle" fill="#ff6b9d" font-size="10" font-weight="bold" font-family="Inter,sans-serif">Čijomé</text>
+            <text x="35" y="115" text-anchor="middle" fill="#8899bb" font-size="8" font-family="Inter,sans-serif">Ninja velitelka</text>
+          </g>
+          <text x="140" y="150" text-anchor="middle" fill="#8899bb" font-size="10" font-family="Inter,sans-serif">Ninjové i kunoiči (ženy ninjové)</text>
+        </svg>`,
+        `<svg viewBox="0 0 280 110" xmlns="http://www.w3.org/2000/svg">
+          <rect width="280" height="110" rx="16" fill="#1a2240"/>
+          <polygon points="60,80 90,30 120,80" fill="#2a4a3a" opacity="0.6"/>
+          <polygon points="100,80 140,20 180,80" fill="#2a4a3a" opacity="0.8"/>
+          <polygon points="160,80 190,35 220,80" fill="#2a4a3a" opacity="0.6"/>
+          <rect x="50" y="80" width="180" height="4" rx="2" fill="#3a5a4a"/>
+          <text x="80" y="98" fill="#e63946" font-size="10" font-weight="bold" font-family="Inter,sans-serif">Iga</text>
+          <text x="175" y="98" fill="#6c63ff" font-size="10" font-weight="bold" font-family="Inter,sans-serif">Kóga</text>
+          <line x1="140" y1="82" x2="140" y2="95" stroke="#8899bb" stroke-width="1" stroke-dasharray="2,2"/>
+        </svg>`
+      ],
+      // Lesson 6: Home exercises
+      6: [
+        `<svg viewBox="0 0 280 200" xmlns="http://www.w3.org/2000/svg">
+          <rect width="280" height="200" rx="16" fill="#0f1629"/>
+          <g transform="translate(20,15)">
+            <circle cx="35" cy="30" r="28" fill="rgba(255,215,0,0.1)" stroke="#ffd700" stroke-width="1.5"/>
+            <text x="35" y="37" text-anchor="middle" font-size="26">🦩</text>
+            <text x="35" y="75" text-anchor="middle" font-size="10" fill="#ffd700" font-family="Inter,sans-serif">10 sekund</text>
+            <text x="35" y="88" text-anchor="middle" font-size="9" fill="#ffd700" font-family="Inter,sans-serif">na jedné noze</text>
+          </g>
+          <g transform="translate(110,15)">
+            <circle cx="35" cy="30" r="28" fill="rgba(6,214,160,0.1)" stroke="#06d6a0" stroke-width="1.5"/>
+            <text x="35" y="37" text-anchor="middle" font-size="26">🤫</text>
+            <text x="35" y="75" text-anchor="middle" font-size="10" fill="#06d6a0" font-family="Inter,sans-serif">Tichý přesun</text>
+            <text x="35" y="88" text-anchor="middle" font-size="9" fill="#06d6a0" font-family="Inter,sans-serif">pokojem</text>
+          </g>
+          <g transform="translate(200,15)">
+            <circle cx="35" cy="30" r="28" fill="rgba(230,57,70,0.1)" stroke="#e63946" stroke-width="1.5"/>
+            <text x="35" y="37" text-anchor="middle" font-size="26">🤸</text>
+            <text x="35" y="75" text-anchor="middle" font-size="10" fill="#e63946" font-family="Inter,sans-serif">Převaly</text>
+            <text x="35" y="88" text-anchor="middle" font-size="9" fill="#e63946" font-family="Inter,sans-serif">na zemi</text>
+          </g>
+          <text x="140" y="140" text-anchor="middle" fill="#ffd700" font-size="13" font-weight="bold" font-family="Inter,sans-serif">Ninja výzvy</text>
+          <text x="140" y="160" text-anchor="middle" fill="#8899bb" font-size="11" font-family="Inter,sans-serif">Zvládneš všechny tři?</text>
+        </svg>`,
+        `<svg viewBox="0 0 280 160" xmlns="http://www.w3.org/2000/svg">
+          <rect width="280" height="160" rx="16" fill="#1a2240"/>
+          <g transform="translate(15,15)">
+            <rect x="0" y="0" width="115" height="55" rx="10" fill="rgba(255,215,0,0.08)" stroke="#ffd700" stroke-width="1"/>
+            <text x="57" y="22" text-anchor="middle" font-size="18">👀</text>
+            <text x="57" y="42" text-anchor="middle" fill="#ffd700" font-size="9" font-family="Inter,sans-serif">Zapamatuj si věci</text>
+          </g>
+          <g transform="translate(150,15)">
+            <rect x="0" y="0" width="115" height="55" rx="10" fill="rgba(6,214,160,0.08)" stroke="#06d6a0" stroke-width="1"/>
+            <text x="57" y="22" text-anchor="middle" font-size="18">🧘</text>
+            <text x="57" y="42" text-anchor="middle" fill="#06d6a0" font-size="9" font-family="Inter,sans-serif">Socha — nehýbej se!</text>
+          </g>
+          <g transform="translate(15,85)">
+            <rect x="0" y="0" width="115" height="55" rx="10" fill="rgba(230,57,70,0.08)" stroke="#e63946" stroke-width="1"/>
+            <text x="57" y="22" text-anchor="middle" font-size="18">🎯</text>
+            <text x="57" y="42" text-anchor="middle" fill="#e63946" font-size="9" font-family="Inter,sans-serif">Hoď ponožku na cíl</text>
+          </g>
+          <g transform="translate(150,85)">
+            <rect x="0" y="0" width="115" height="55" rx="10" fill="rgba(108,99,255,0.08)" stroke="#6c63ff" stroke-width="1"/>
+            <text x="57" y="22" text-anchor="middle" font-size="18">🐱</text>
+            <text x="57" y="42" text-anchor="middle" fill="#6c63ff" font-size="9" font-family="Inter,sans-serif">Plíživý krok kočky</text>
+          </g>
+        </svg>`
+      ]
+    };
+
+    const lessons = [
+      {
+        id: 0,
+        title: 'Kdo byli ninjové?',
+        emoji: '🥷',
+        paragraphs: [
+          'Ninjové byli tajní agenti ve starém Japonsku. Žili před mnoha stovkami let a jejich úkolem bylo získávat tajné informace a chránit své pány.',
+          'Na rozdíl od samurajů, kteří bojovali otevřeně, ninjové pracovali ve skrytu. Uměli se plížit, přestrojit a zmizet jako stíny.',
+          'Ninjové pocházeli většinou z horských vesnic, kde se celé rodiny učily tajné dovednosti. Děti začínaly s tréninkem už ve velmi mladém věku — asi jako ty!'
+        ],
+        funFact: 'Správný název pro ninja je „šinobi". Slovo ninja se začalo používat až mnohem později!'
+      },
+      {
+        id: 1,
+        title: 'Ninja oblečení',
+        emoji: '👘',
+        paragraphs: [
+          'Ninjové nosili speciální oblek zvaný „šinobi šózoku". Byl tmavý, aby je v noci nebylo vidět. Ale pozor — nebyl černý! Většinou byl tmavě modrý.',
+          'Proč modrý? Protože čistě černá barva v noci vlastně vyniká. Tmavě modrá splývá s noční oblohou mnohem lépe.',
+          'Na hlavě měli masku zvanou „zukin", která zakrývala obličej. Oblečení bylo volné, aby se v něm mohli snadno pohybovat, lézt a skákat.'
+        ],
+        funFact: 'Ninjové se často přestrojovali za obyčejné lidi — za obchodníky, mnichy nebo farmáře. Nejlepší převlek byl ten, kdy si jich nikdo nevšiml!'
+      },
+      {
+        id: 2,
+        title: 'Ninja nástroje',
+        emoji: '⚔️',
+        paragraphs: [
+          'Ninjové používali spoustu chytrých nástrojů. Nejznámější je „šuriken" — kovová hvězdice, kterou házeli na cíl. Ale nebyla to hlavní zbraň, spíš sloužila k odvedení pozornosti.',
+          '„Kunai" vypadá jako malá dýka, ale ninjové ho používali hlavně jako nástroj — na kopání, páčení a lezení. Byl to takový ninja švýcarský nůž!',
+          'Ninjové měli i kouřové bomby, aby mohli rychle zmizet, lana s háky na lezení po zdech a speciální boty s měkkou podrážkou pro tichý pohyb.'
+        ],
+        funFact: 'Ninjové nosili nástroje na tajných místech v oblečení. Někdy měli dutou hůl, ve které schovávali zprávy nebo jedovatý prášek!'
+      },
+      {
+        id: 3,
+        title: 'Ninja dovednosti',
+        emoji: '🤸',
+        paragraphs: [
+          'Ninjové museli umět úplně všechno! Plížení a tichý pohyb byly základem. Trénovali chůzi tak tiše, že je neslyšel ani pes.',
+          'Uměli skvěle lézt — po zdech, stromech i skalách. Museli být rychlí plavci a dokázali dlouho zadržet dech pod vodou.',
+          'Nejdůležitější dovedností ale byla chytrost. Ninjové měli skvělou paměť, uměli číst mapy, znali přírodu a dokázali se přestrojit za kohokoliv.'
+        ],
+        funFact: 'Ninjové trénovali paměť pomocí speciálních her. Podívali se na skupinu předmětů, pak zavřeli oči a museli si vzpomenout na každý z nich!'
+      },
+      {
+        id: 4,
+        title: 'Ninja trénink',
+        emoji: '💪',
+        paragraphs: [
+          'Ninja trénink začínal už v dětství. Malí ninjové cvičili rovnováhu na kládě, běhali přes překážky a učili se padat bez zranění.',
+          'Důležitý byl tichý běh — běžet rychle a přitom nedělat žádný hluk. Zkus to doma! Zjistíš, že to vůbec není jednoduché.',
+          'Ninjové se také hodně učili o přírodě. Poznávali rostliny, předpovídali počasí podle mraků a sledovali zvířata. Příroda byla jejich nejlepší učitelka.'
+        ],
+        funFact: 'Malí ninjové prý skákali přes rostoucí rostlinu konopí. Jak rostlina rostla každý den výš, oni skákali stále výše — a ani si toho nevšimli!'
+      },
+      {
+        id: 5,
+        title: 'Slavní ninjové',
+        emoji: '⭐',
+        paragraphs: [
+          'Hattori Hanzó byl jeden z nejslavnějších ninjů. Sloužil jako ochránce budoucího vládce Japonska a proslavil se svou odvahou a bojovým uměním.',
+          'Věděl(a) jsi, že existovaly i ženy ninjové? Říkalo se jim „kunoiči". Močizuki Čijomé byla slavná ninja velitelka, která trénovala celou skupinu dívek v umění špionáže.',
+          'Nejznámější ninja klany byly Iga a Kóga z hornatých oblastí Japonska. Tyto rodiny si předávaly tajné znalosti z generace na generaci.'
+        ],
+        funFact: 'Klan Iga byl tak tajemný, že když je nepřátelé napadli, celá vesnice zmizela v horách jako duchové — i s rodinami a zvířaty!'
+      },
+      {
+        id: 6,
+        title: 'Ninja cvičení doma',
+        emoji: '🏠',
+        isExercise: true,
+        exercises: [
+          {
+            emoji: '🦩',
+            title: 'Plameňák',
+            anim: 'anim-balance',
+            color: '#ffd700',
+            difficulty: '⭐ Začátečník',
+            description: 'Opravdoví ninjové dokázali stát na jedné noze celé minuty na úzkém okraji střechy. Zkus to taky!',
+            steps: [
+              'Postav se rovně a zvedni jednu nohu do vzduchu.',
+              'Roztáhni ruce do stran — pomůže ti to udržet rovnováhu.',
+              'Zkus vydržet 10 sekund. Zvládneš to se zavřenýma očima?',
+              'Pak vyměň nohu a zkus znovu. Která noha je lepší?'
+            ]
+          },
+          {
+            emoji: '🤫',
+            title: 'Tichý přesun',
+            anim: 'anim-sneak',
+            color: '#06d6a0',
+            difficulty: '⭐ Začátečník',
+            description: 'Ninjové trénovali tichý pohyb každý den. Museli projít kolem stráží a nesměli vydat ani hlásku.',
+            steps: [
+              'Sundej si boty — jdi naboso nebo v ponožkách.',
+              'Našlápni nejdřív na špičku a pak pomalu polož celé chodidlo.',
+              'Zkus přejít celý pokoj tak, aby tě nikdo neslyšel.',
+              'Požádej někoho, ať zavře oči a zkusí poznat, kde jsi. Uslyší tě?'
+            ]
+          },
+          {
+            emoji: '🤸',
+            title: 'Ninja kotouly',
+            anim: 'anim-roll',
+            color: '#e63946',
+            difficulty: '⭐⭐ Pokročilý',
+            description: 'Ninjové se uměli kutálet, aby se vyhnuli útokům a rychle vstali na nohy. Kotoul je základ ninja obratnosti!',
+            steps: [
+              'Najdi měkkou podložku nebo koberec.',
+              'Dřepni si, dej bradu na hrudník a ruce před sebe.',
+              'Pomalu se převal dopředu přes záda.',
+              'Zkus vstát rovnou na nohy! Ninja vždy skončí připravený.'
+            ]
+          },
+          {
+            emoji: '👀',
+            title: 'Ninja paměť',
+            anim: 'anim-eye',
+            color: '#6c63ff',
+            difficulty: '⭐ Začátečník',
+            description: 'Ninjové museli mít fotografickou paměť. Podívali se na mapu jen jednou a zapamatovali si každý detail.',
+            steps: [
+              'Polož na stůl 10 různých věcí (tužka, lžíce, kostka...).',
+              'Dívej se na ně přesně 30 sekund — snaž se zapamatovat všechno.',
+              'Přikryj je ručníkem a řekni nahlas, co tam bylo.',
+              'Kolik jsi jich dal? 7 a víc = ninja paměť! Příště přidej víc věcí.'
+            ]
+          },
+          {
+            emoji: '🧘',
+            title: 'Socha',
+            anim: 'anim-statue',
+            color: '#4ecdc4',
+            difficulty: '⭐⭐ Pokročilý',
+            description: 'Ninjové museli být úplně nehybní, když se schovali ve tmě a čekali na správný okamžik. Někdy i celé hodiny!',
+            steps: [
+              'Postav se nebo sedni do pohodlné pozice.',
+              'Nastav si minutu na hodinkách nebo požádej někoho, aby měřil.',
+              'Nehýbej se! Ani mrknutí, ani škrábání, ani úsměv.',
+              'Je to těžší, než vypadá! Zkus příště 2 minuty.'
+            ]
+          },
+          {
+            emoji: '🎯',
+            title: 'Hod na cíl',
+            anim: 'anim-throw',
+            color: '#f4a261',
+            difficulty: '⭐ Začátečník',
+            description: 'Takhle ninjové trénovali přesnost se šurikeny! Ty použiješ ponožky — je to bezpečnější a stejně zábavné.',
+            steps: [
+              'Polož na zem talíř, noviny nebo list papíru — to je tvůj cíl.',
+              'Sroluj ponožku do kuličky.',
+              'Postav se 2 metry daleko a hoď!',
+              'Trefil ses? Zkus 3 metry! A pak se otoč zády a hoď přes rameno.'
+            ]
+          },
+          {
+            emoji: '🐱',
+            title: 'Kočičí krok',
+            anim: 'anim-cat',
+            color: '#ff6b9d',
+            difficulty: '⭐⭐⭐ Mistr',
+            description: 'Ninjové trénovali přesné kroky, aby v noci nešlápli na větev nebo skřípající prkno. Kočky jsou v tomhle mistři!',
+            steps: [
+              'Rozlož po chodbě papíry nebo boty v řadě za sebou.',
+              'Šlapej přesně jen na ně — nesmíš se dotknout podlahy!',
+              'Jdi tam a zpátky. Spadl jsi? Začni znovu!',
+              'Pro ninja mistry: zkus to po tmě nebo se zavřenýma očima!'
+            ]
+          }
+        ],
+        funFact: 'Můžeš si vytvořit vlastní ninja tréninkový plán! Zkus každý den jedno cvičení a zapiš si, jak se zlepšuješ. Za měsíc budeš jako opravdový šinobi!'
+      }
+    ];
+
+    // === DATA: Quiz Questions ===
+    const questions = [
+      {
+        question: 'Jak se správně říká ninjům?',
+        options: ['Samurajové', 'Šinobi', 'Bušidó'],
+        correct: 1,
+        explanation: 'Správný název je „šinobi". Slovo ninja přišlo až později.'
+      },
+      {
+        question: 'Jakou barvu mělo ninja oblečení?',
+        options: ['Černou', 'Bílou', 'Tmavě modrou'],
+        correct: 2,
+        explanation: 'Tmavě modrá splývá s noční oblohou lépe než černá!'
+      },
+      {
+        question: 'K čemu hlavně sloužil kunai?',
+        options: ['K vaření', 'Jako univerzální nástroj', 'Jako hračka'],
+        correct: 1,
+        explanation: 'Kunai byl hlavně nástroj — na kopání, páčení a lezení.'
+      },
+      {
+        question: 'Jak se jmenovala slavná žena ninja?',
+        options: ['Sakura', 'Močizuki Čijomé', 'Hanako'],
+        correct: 1,
+        explanation: 'Močizuki Čijomé vedla skupinu dívek — ninjů zvaných kunoiči.'
+      },
+      {
+        question: 'Co používali ninjové, aby rychle zmizeli?',
+        options: ['Kouřové bomby', 'Kouzla', 'Létající koberec'],
+        correct: 0,
+        explanation: 'Kouřové bomby vytvořily mrak kouře, ve kterém ninja zmizel!'
+      },
+      {
+        question: 'Jak se jmenoval slavný ninja, který chránil budoucího vládce Japonska?',
+        options: ['Hattori Hanzó', 'Marco Polo', 'Iga Tanaka'],
+        correct: 0,
+        explanation: 'Hattori Hanzó byl jeden z nejslavnějších ninjů v historii.'
+      },
+      {
+        question: 'Jak se říkalo masce, kterou ninja nosil na hlavě?',
+        options: ['Kabuto', 'Zukin', 'Kasa'],
+        correct: 1,
+        explanation: 'Zukin zakrýval obličej ninja, aby ho nikdo nepoznal.'
+      },
+      {
+        question: 'Co trénovali ninjové od dětství?',
+        options: ['Vaření sushi', 'Rovnováhu a tichý běh', 'Hraní na flétnu'],
+        correct: 1,
+        explanation: 'Ninja děti cvičily rovnováhu, tichý běh a skákání přes překážky.'
+      },
+      {
+        question: 'Které dva nejznámější ninja klany znáš?',
+        options: ['Iga a Kóga', 'Tokio a Ósaka', 'Sakura a Fudži'],
+        correct: 0,
+        explanation: 'Klany Iga a Kóga byly z hornatých oblastí a tajně si předávaly znalosti.'
+      },
+      {
+        question: 'Proč se ninjové učili o přírodě?',
+        options: ['Protože neměli televizi', 'Příroda jim pomáhala při misích', 'Chtěli být zahradníky'],
+        correct: 1,
+        explanation: 'Znalost přírody pomáhala ninjům předpovídat počasí, orientovat se a najít jídlo.'
+      }
+    ];
+
+    // === STATE ===
+    let currentScreen = 'screen-home';
+    let quizQuestions = [];
+    let currentQuestionIndex = 0;
+    let score = 0;
+    let answering = false;
+
+    // === NAVIGATION ===
+    function showScreen(screenId) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      const screen = document.getElementById(screenId);
+      screen.classList.add('active');
+      // Re-trigger animation
+      screen.style.animation = 'none';
+      screen.offsetHeight; // force reflow
+      screen.style.animation = '';
+      currentScreen = screenId;
+      SFX.swoosh();
+      // Stop voiceover when leaving lesson
+      Voiceover.stop();
+    }
+
+    // === TOPICS RENDERING ===
+    function renderTopics() {
+      const grid = document.getElementById('topicsGrid');
+      grid.innerHTML = '';
+      lessons.forEach((lesson, i) => {
+        const card = document.createElement('div');
+        card.className = 'topic-card';
+        card.onclick = () => { SFX.click(); renderLesson(i); };
+        const translatedTitle = T('lessons')[i].title;
+        card.innerHTML = `<span class="emoji">${lesson.emoji}</span><span class="title">${translatedTitle}</span>`;
+        grid.appendChild(card);
+      });
+    }
+
+    // === LESSON RENDERING ===
+    function renderLesson(index) {
+      const lesson = lessons[index];
+      const tLesson = T('lessons')[index];
+      const lessonIllustrations = illustrations[index] || [];
+      document.getElementById('lessonEmoji').textContent = lesson.emoji;
+      document.getElementById('lessonTitle').textContent = tLesson.title;
+      document.getElementById('funFactLabel').textContent = T('funFactLabel');
+
+      const content = document.getElementById('lessonContent');
+      content.innerHTML = '';
+
+      // Exercise lesson — special card layout
+      if (lesson.isExercise && lesson.exercises) {
+        const tExercises = T('exercises');
+        const diffMap = { '⭐ Začátečník': 'beginner', '⭐⭐ Pokročilý': 'intermediate', '⭐⭐⭐ Mistr': 'master' };
+        lesson.exercises.forEach((ex, i) => {
+          const tEx = tExercises[i];
+          const card = document.createElement('div');
+          card.className = 'exercise-card';
+          card.style.borderColor = ex.color + '33';
+          card.style.animationDelay = (i * 0.1) + 's';
+
+          const diffKey = diffMap[ex.difficulty] || 'beginner';
+          const translatedDiff = T('difficulties')[diffKey];
+          const stepsHtml = tEx.steps.map((s, si) =>
+            `<li data-step="${si + 1}">${s}</li>`
+          ).join('');
+
+          card.innerHTML = `
+            <div class="exercise-header">
+              <div class="exercise-anim ${ex.anim}" style="background:${ex.color}18; border: 2px solid ${ex.color}44">
+                ${ex.emoji}
+              </div>
+              <div>
+                <div class="exercise-title" style="color:${ex.color}">${tEx.title}</div>
+                <div class="exercise-difficulty">${translatedDiff}</div>
+              </div>
+            </div>
+            <div class="exercise-body">
+              <p>${tEx.description}</p>
+              <ol class="exercise-steps">${stepsHtml}</ol>
+              <button class="voiceover-btn" id="vo-btn-${i}" onclick="toggleVoiceover(${i}, this)">
+                <span class="vo-icon">🔊</span> ${T('listen')}
+              </button>
+              <div class="vo-progress" id="vo-progress-${i}">
+                <div class="vo-progress-fill" id="vo-fill-${i}"></div>
+              </div>
+            </div>
+          `;
+          content.appendChild(card);
+        });
+
+        document.getElementById('funFactText').textContent = tLesson.funFact;
+        showScreen('screen-lesson');
+        // Auto-play topic title voiceover for exercise lesson
+        setTimeout(() => {
+          if (currentScreen === 'screen-lesson') {
+            Voiceover.playTopic(index);
+          }
+        }, 600);
+        return;
+      }
+
+      // Regular lesson — illustrations + paragraphs
+      const paragraphs = tLesson.paragraphs || [];
+      if (lessonIllustrations[0]) {
+        const illDiv = document.createElement('div');
+        illDiv.className = 'lesson-illustration';
+        illDiv.innerHTML = lessonIllustrations[0];
+        content.appendChild(illDiv);
+      }
+
+      paragraphs.forEach((p, i) => {
+        const para = document.createElement('p');
+        para.textContent = p;
+        content.appendChild(para);
+
+        if (i === 0 && lessonIllustrations[1]) {
+          const illDiv = document.createElement('div');
+          illDiv.className = 'lesson-illustration';
+          illDiv.innerHTML = lessonIllustrations[1];
+          content.appendChild(illDiv);
+        } else if (i < paragraphs.length - 1) {
+          const divider = document.createElement('div');
+          divider.className = 'lesson-divider';
+          divider.textContent = '✦ ✦ ✦';
+          content.appendChild(divider);
+        }
+      });
+
+      document.getElementById('funFactText').textContent = tLesson.funFact;
+      showScreen('screen-lesson');
+
+      // Auto-play topic title voiceover + "read more" prompt
+      setTimeout(() => {
+        if (currentScreen === 'screen-lesson') {
+          Voiceover.playTopic(index, () => {
+            Voiceover.playReadMore();
+          });
+        }
+      }, 600);
+    }
+
+    // === QUIZ ENGINE ===
+    function shuffle(arr) {
+      const a = [...arr];
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    }
+
+    function startQuiz() {
+      quizQuestions = shuffle(T('questions'));
+      currentQuestionIndex = 0;
+      score = 0;
+      answering = false;
+      showScreen('screen-quiz');
+      renderQuestion();
+    }
+
+    function renderQuestion() {
+      const q = quizQuestions[currentQuestionIndex];
+      const total = quizQuestions.length;
+
+      document.getElementById('quizProgressLabel').textContent = T('questionOf')(currentQuestionIndex + 1, total);
+      document.getElementById('quizProgressFill').style.width = `${((currentQuestionIndex) / total) * 100}%`;
+      document.getElementById('quizQuestion').textContent = q.question;
+      document.getElementById('quizFeedback').style.display = 'none';
+      document.getElementById('quizVoBtn').classList.remove('playing');
+
+      const optionsEl = document.getElementById('quizOptions');
+      optionsEl.innerHTML = '';
+      q.options.forEach((opt, i) => {
+        const btn = document.createElement('button');
+        btn.className = 'quiz-option';
+        btn.textContent = opt;
+        btn.onclick = () => { SFX.click(); checkAnswer(i); };
+        optionsEl.appendChild(btn);
+      });
+      setTimeout(() => { if (currentScreen === 'screen-quiz') playQuizVO(); }, 500);
+    }
+
+    function playQuizVO() {
+      const q = quizQuestions[currentQuestionIndex];
+      const origIndex = T('questions').indexOf(q);
+      if (origIndex >= 0) {
+        document.getElementById('quizVoBtn').classList.add('playing');
+        Voiceover.playQuiz(origIndex);
+        const checkEnd = setInterval(() => {
+          if (!Voiceover.isPlaying()) {
+            document.getElementById('quizVoBtn').classList.remove('playing');
+            clearInterval(checkEnd);
+          }
+        }, 300);
+      }
+    }
+
+    function checkAnswer(selected) {
+      if (answering) return;
+      answering = true;
+      Voiceover.stop();
+      const q = quizQuestions[currentQuestionIndex];
+      const buttons = document.querySelectorAll('.quiz-option');
+      const feedback = document.getElementById('quizFeedback');
+
+      buttons.forEach(b => b.disabled = true);
+
+      if (selected === q.correct) {
+        score++;
+        buttons[selected].classList.add('correct');
+        feedback.className = 'quiz-feedback correct';
+        feedback.textContent = getCorrectMessage();
+        SFX.correct();
+      } else {
+        buttons[selected].classList.add('wrong');
+        buttons[q.correct].classList.add('reveal-correct');
+        feedback.className = 'quiz-feedback wrong';
+        feedback.textContent = q.explanation;
+        SFX.wrong();
+      }
+      feedback.style.display = 'flex';
+
+      document.getElementById('quizNextBtn').style.display = 'inline-block';
+    }
+
+    function advanceQuestion() {
+      document.getElementById('quizNextBtn').style.display = 'none';
+      currentQuestionIndex++;
+      answering = false;
+      if (currentQuestionIndex < quizQuestions.length) {
+        renderQuestion();
+      } else {
+        showResults();
+      }
+    }
+
+    function getCorrectMessage() {
+      const messages = T('correctMessages');
+      return messages[Math.floor(Math.random() * messages.length)];
+    }
+
+    function showResults() {
+      const total = quizQuestions.length;
+      let stars;
+      if (score >= 8) stars = 3;
+      else if (score >= 4) stars = 2;
+      else stars = 1;
+
+      document.getElementById('resultsTitle').textContent = T('resultTitles')[stars];
+      document.getElementById('resultsMessage').textContent = T('resultMessages')[stars];
+      document.getElementById('resultsScore').textContent = T('scoreOf')(score, total);
+
+      // Animate stars
+      const starEls = document.querySelectorAll('.result-star');
+      starEls.forEach((el, i) => {
+        el.classList.remove('earned');
+        el.style.animationDelay = `${i * 0.2}s`;
+      });
+
+      showScreen('screen-results');
+
+      // Stagger star animation + sounds
+      SFX.fanfare();
+      setTimeout(() => {
+        starEls.forEach((el, i) => {
+          if (i < stars) {
+            setTimeout(() => { el.classList.add('earned'); SFX.star(); }, i * 300);
+          }
+        });
+      }, 200);
+
+      // Fill progress bar to 100%
+      document.getElementById('quizProgressFill').style.width = '100%';
+    }
+
+    // === VOICEOVER CONTROLS ===
+    let voProgressInterval = null;
+
+    function toggleVoiceover(index, btn) {
+      SFX.click();
+      // If this one is already playing, stop it
+      if (btn.classList.contains('playing')) {
+        stopVoiceover(index, btn);
+        return;
+      }
+
+      // Stop any other playing voiceover
+      document.querySelectorAll('.voiceover-btn.playing').forEach(b => {
+        const idx = parseInt(b.id.replace('vo-btn-', ''));
+        stopVoiceover(idx, b);
+      });
+
+      // Start playing
+      const audio = Voiceover.play(index);
+      if (!audio) return;
+
+      btn.classList.add('playing');
+      btn.querySelector('.vo-icon').textContent = '⏹';
+      btn.querySelector('.vo-icon').nextSibling.textContent = ' ' + T('stop');
+
+      const progress = document.getElementById('vo-progress-' + index);
+      const fill = document.getElementById('vo-fill-' + index);
+      progress.classList.add('active');
+
+      // Update progress bar
+      if (voProgressInterval) clearInterval(voProgressInterval);
+      voProgressInterval = setInterval(() => {
+        if (audio.duration) {
+          fill.style.width = (audio.currentTime / audio.duration * 100) + '%';
+        }
+      }, 200);
+
+      // When audio ends
+      audio.onended = () => {
+        stopVoiceover(index, btn);
+      };
+    }
+
+    function stopVoiceover(index, btn) {
+      Voiceover.stop();
+      if (voProgressInterval) { clearInterval(voProgressInterval); voProgressInterval = null; }
+      btn.classList.remove('playing');
+      btn.querySelector('.vo-icon').textContent = '🔊';
+      btn.querySelector('.vo-icon').nextSibling.textContent = ' ' + T('listen');
+      const progress = document.getElementById('vo-progress-' + index);
+      const fill = document.getElementById('vo-fill-' + index);
+      if (progress) progress.classList.remove('active');
+      if (fill) fill.style.width = '0%';
+    }
+
+    // === BACKGROUND STARS ===
+    function createBgStars() {
+      const container = document.getElementById('bgStars');
+      for (let i = 0; i < 50; i++) {
+        const star = document.createElement('div');
+        star.className = 'bg-star';
+        star.style.left = Math.random() * 100 + '%';
+        star.style.top = Math.random() * 100 + '%';
+        star.style.animationDelay = Math.random() * 3 + 's';
+        star.style.width = (Math.random() * 3 + 1) + 'px';
+        star.style.height = star.style.width;
+        container.appendChild(star);
+      }
+    }
+
+    // === INIT ===
+    createBgStars();
+    renderTopics();
+
+    // === PWA SERVICE WORKER ===
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js').catch(() => {});
+    }
+  </script>
+</body>
+</html>
