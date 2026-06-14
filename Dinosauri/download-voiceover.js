@@ -3,12 +3,12 @@
  * Downloads voiceover MP3s from ElevenLabs for the Dinosaur encyclopedia.
  * Run: node download-voiceover.js [--lang cs|pt|es|all]
  *
- * Generates ~52 MP3 files per language:
+ * Generates MP3 files per language:
  * - 1 welcome message
  * - 7 topic names
  * - 21 lesson paragraphs (7 lessons x 3 paragraphs)
  * - 7 fun facts
- * - 10 quiz questions (with options)
+ * - 10 quiz questions (PT/ES) or 30 quiz questions (CS), with options
  * - 6 exercise/activity descriptions
  *
  * Output directories:
@@ -99,6 +99,26 @@ const texts = {
     { file: 'quiz-q7.mp3', text: 'Kdo uměl létat v době dinosaurů? T-Rex? Pteranodon? Nebo Triceratops?' },
     { file: 'quiz-q8.mp3', text: 'Proč měl Stegosaurus desky na zádech? Aby byl hezký? Na obranu? Nebo na létání?' },
     { file: 'quiz-q9.mp3', text: 'Jak velký byl meteorit, který zabil dinosaury? Jako míč? Jako auto? Nebo jako celé město?' },
+    { file: 'quiz-q10.mp3', text: 'Jak říkáme zkamenělým zbytkům dinosaurů? Fosilie? Bonbony? Nebo bubliny?' },
+    { file: 'quiz-q11.mp3', text: 'Kdo hledá a zkoumá dinosauří kosti? Paleontolog? Kuchař? Nebo hasič?' },
+    { file: 'quiz-q12.mp3', text: 'Co měl Spinosaurus na zádech? Velkou plachtu? Batoh? Nebo klobouk?' },
+    { file: 'quiz-q13.mp3', text: 'Jak říkáme dinosaurům, kteří jedli rostliny? Býložravci? Masožravci? Nebo piloti?' },
+    { file: 'quiz-q14.mp3', text: 'Kde dinosauří maminky často chránily vajíčka? V hnízdě? V lednici? Nebo v batohu?' },
+    { file: 'quiz-q15.mp3', text: 'Který dinosaurus měl ocas dlouhý jako autobus? Diplodocus? T-Rex? Nebo Triceratops?' },
+    { file: 'quiz-q16.mp3', text: 'Byl Pteranodon opravdový dinosaurus? Ne, byl létající plaz? Ano, byl T-Rex? Nebo byl to pes?' },
+    { file: 'quiz-q17.mp3', text: 'Kde žil Plesiosaurus? Ve vodě? Na Měsíci? Nebo v poušti na kole?' },
+    { file: 'quiz-q18.mp3', text: 'Co měl Triceratops kromě tří rohů? Velký štít na hlavě? Křídla? Nebo ploutve?' },
+    { file: 'quiz-q19.mp3', text: 'Proč měli masožravci ostré zuby? Na trhání masa? Na česání vlasů? Nebo na hraní písniček?' },
+    { file: 'quiz-q20.mp3', text: 'Co měl Stegosaurus na ocasu? Ostny? Mašli? Nebo zvoneček?' },
+    { file: 'quiz-q21.mp3', text: 'Proč žili někteří dinosauři ve stádech? Aby se lépe chránili? Aby hráli fotbal? Nebo aby stavěli domy?' },
+    { file: 'quiz-q22.mp3', text: 'Co nám mohou prozradit zkamenělé stopy? Jak dinosaurus chodil? Jakou měl oblíbenou písničku? Nebo jakou měl čepici?' },
+    { file: 'quiz-q23.mp3', text: 'Žili lidé společně s dinosaury? Ne, dinosauři byli dávno před lidmi? Ano, jezdili na nich do školy? Nebo jen o prázdninách?' },
+    { file: 'quiz-q24.mp3', text: 'Proč měl Brachiosaurus tak dlouhý krk? Dosáhl na vysoké listy? Aby nosil šálu? Nebo aby lépe zpíval?' },
+    { file: 'quiz-q25.mp3', text: 'Co se stalo po dopadu meteoritu se Sluncem? Prach ho na čas zakryl? Spadlo do moře? Nebo začalo hrát hudbu?' },
+    { file: 'quiz-q26.mp3', text: 'Která dnešní zvířata jsou potomci dinosaurů? Ptáci? Ryby v akváriu? Nebo berušky?' },
+    { file: 'quiz-q27.mp3', text: 'K čemu bylo Ankylosaurovi brnění? Na ochranu těla? Na plavání? Nebo na létání?' },
+    { file: 'quiz-q28.mp3', text: 'Kde všude dinosauři žili? Na celé Zemi? Jen v jedné zahradě? Nebo pouze v krabici?' },
+    { file: 'quiz-q29.mp3', text: 'Čím byl T-Rex legrační kromě obří tlamy? Měl maličké přední končetiny? Měl kolečkové brusle? Nebo měl deštník?' },
 
     // Exercises
     { file: 'exercise-0.mp3', text: 'Zařvi jako T-Rex! T-Rex měl nejhlasitější řev ze všech dinosaurů. Zkus to taky! Za prvé: Postav se rovně a narovnej se co nejvíc. Za druhé: Nadechni se hodně hodně hluboko. Za třetí: Otevři pusu co nejvíc dokážeš. Za čtvrté: Zařvi ze všech sil! RRRAAAAA! Za páté: Ukaž zuby jako pravý T-Rex!' },

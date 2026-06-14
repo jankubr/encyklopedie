@@ -11,7 +11,7 @@
  * - 7 exercise voiceovers (exercise-{0-6}-*.mp3)
  * - 7 topic title voiceovers (topic-{0-6}.mp3)
  * - 1 "read more" prompt (read-more.mp3)
- * - 10 quiz question voiceovers (quiz-q{0-9}.mp3)
+ * - 10 quiz question voiceovers for PT/ES and 30 for CS (quiz-q{0-29}.mp3)
  */
 const fs = require('fs');
 const path = require('path');
@@ -60,7 +60,27 @@ const texts = {
     { file: 'quiz-q6.mp3', text: 'Jak se říkalo masce, kterou ninja nosil na hlavě?' },
     { file: 'quiz-q7.mp3', text: 'Co trénovali ninjové od dětství?' },
     { file: 'quiz-q8.mp3', text: 'Které dva nejznámější ninja klany znáš?' },
-    { file: 'quiz-q9.mp3', text: 'Proč se ninjové učili o přírodě?' }
+    { file: 'quiz-q9.mp3', text: 'Proč se ninjové učili o přírodě?' },
+    { file: 'quiz-q10.mp3', text: 'Ve které zemi ninjové žili?' },
+    { file: 'quiz-q11.mp3', text: 'Jak ninjové nejčastěji pracovali?' },
+    { file: 'quiz-q12.mp3', text: 'Proč nebylo čistě černé oblečení v noci nejlepší?' },
+    { file: 'quiz-q13.mp3', text: 'Jak se jmenoval speciální ninja oblek?' },
+    { file: 'quiz-q14.mp3', text: 'K čemu hlavně sloužil šuriken?' },
+    { file: 'quiz-q15.mp3', text: 'Proč měli ninjové měkké podrážky?' },
+    { file: 'quiz-q16.mp3', text: 'Za koho se ninjové často převlékali?' },
+    { file: 'quiz-q17.mp3', text: 'Jak se říkalo ženám ninja?' },
+    { file: 'quiz-q18.mp3', text: 'Odkud pocházely slavné klany Iga a Kóga?' },
+    { file: 'quiz-q19.mp3', text: 'Proč ninjové uměli číst mapy?' },
+    { file: 'quiz-q20.mp3', text: 'Jak ninjové trénovali paměť?' },
+    { file: 'quiz-q21.mp3', text: 'Proč se ninjové učili padat?' },
+    { file: 'quiz-q22.mp3', text: 'Podle čeho ninjové poznávali počasí?' },
+    { file: 'quiz-q23.mp3', text: 'K čemu bylo lano s hákem?' },
+    { file: 'quiz-q24.mp3', text: 'Co znamená tichý běh?' },
+    { file: 'quiz-q25.mp3', text: 'Jaká dovednost byla pro ninja nejdůležitější?' },
+    { file: 'quiz-q26.mp3', text: 'Koho chránil Hattori Hanzó?' },
+    { file: 'quiz-q27.mp3', text: 'Proč malí ninjové trénovali rovnováhu?' },
+    { file: 'quiz-q28.mp3', text: 'Jaký převlek byl pro ninja nejlepší?' },
+    { file: 'quiz-q29.mp3', text: 'Co znamená slovo šinobi?' }
   ],
 
   pt: [
